@@ -1,0 +1,80 @@
+{
+  "contract_name": "TestUtils",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_x",
+          "type": "uint256"
+        },
+        {
+          "name": "_y",
+          "type": "uint256"
+        }
+      ],
+      "name": "testSafeMul",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_x",
+          "type": "uint256"
+        },
+        {
+          "name": "_y",
+          "type": "uint256"
+        }
+      ],
+      "name": "testSafeAdd",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_x",
+          "type": "uint256"
+        },
+        {
+          "name": "_y",
+          "type": "uint256"
+        }
+      ],
+      "name": "testSafeSub",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": false,
+      "type": "constructor"
+    }
+  ],
+  "unlinked_binary": "0x6060604052341561000c57fe5b5b5b5b5b5b61017a806100206000396000f300606060405263ffffffff60e060020a6000350416639ee6ff708114610037578063de47864c1461005f578063ec0da33014610087575bfe5b341561003f57fe5b61004d6004356024356100af565b60408051918252519081900360200190f35b341561006757fe5b61004d6004356024356100c4565b60408051918252519081900360200190f35b341561008f57fe5b61004d6004356024356100d9565b60408051918252519081900360200190f35b60006100bb83836100ee565b90505b92915050565b60006100bb838361011d565b90505b92915050565b60006100bb8383610137565b90505b92915050565b600082820283158061010a575082848281151561010757fe5b04145b151561011257fe5b8091505b5092915050565b60008282018381101561011257fe5b8091505b5092915050565b60008183101561014357fe5b508082035b929150505600a165627a7a723058206fd5fcb5425b5f8bd83a6b7df236a52b3ced332b67ff0d86a0d1366a25e7a9490029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1503388622159
+}

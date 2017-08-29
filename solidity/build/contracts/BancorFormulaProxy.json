@@ -1,0 +1,169 @@
+{
+  "contract_name": "BancorFormulaProxy",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "formula",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "acceptOwnership",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_supply",
+          "type": "uint256"
+        },
+        {
+          "name": "_reserveBalance",
+          "type": "uint256"
+        },
+        {
+          "name": "_reserveRatio",
+          "type": "uint8"
+        },
+        {
+          "name": "_depositAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "calculatePurchaseReturn",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "newOwner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_formula",
+          "type": "address"
+        }
+      ],
+      "name": "setFormula",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_supply",
+          "type": "uint256"
+        },
+        {
+          "name": "_reserveBalance",
+          "type": "uint256"
+        },
+        {
+          "name": "_reserveRatio",
+          "type": "uint8"
+        },
+        {
+          "name": "_sellAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "calculateSaleReturn",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "_formula",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_prevOwner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "_newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnerUpdate",
+      "type": "event"
+    }
+  ],
+  "unlinked_binary": "0x6060604052341561000c57fe5b60405160208061051083398101604052515b5b5b60008054600160a060020a03191633600160a060020a03161790555b5b80600160a060020a03811615156100545760006000fd5b60028054600160a060020a031916600160a060020a0384161790555b5b50505b61048d806100836000396000f300606060405236156100725763ffffffff60e060020a6000350416634b75f54f811461007457806379ba5097146100a05780638da5cb5b146100b2578063949dfa63146100de578063d4ee1d901461010f578063ecc06c761461013b578063f2fde38b14610159578063f7a4c45c14610177575bfe5b341561007c57fe5b6100846101a8565b60408051600160a060020a039092168252519081900360200190f35b34156100a857fe5b6100b06101b7565b005b34156100ba57fe5b610084610247565b60408051600160a060020a039092168252519081900360200190f35b34156100e657fe5b6100fd60043560243560ff60443516606435610256565b60408051918252519081900360200190f35b341561011757fe5b6100846102e1565b60408051600160a060020a039092168252519081900360200190f35b341561014357fe5b6100b0600160a060020a03600435166102f0565b005b341561016157fe5b6100b0600160a060020a0360043516610382565b005b341561017f57fe5b6100fd60043560243560ff604435166064356103d6565b60408051918252519081900360200190f35b600254600160a060020a031681565b60015433600160a060020a039081169116146101d35760006000fd5b60005460015460408051600160a060020a03938416815292909116602083015280517f343765429aea5a34b3ff6a3785a98a5abb2597aca87bfbb58632c173d585373a9281900390910190a16001805460008054600160a060020a0319908116600160a060020a038416179091551690555b565b600054600160a060020a031681565b6002546040805160006020918201819052825160e060020a63949dfa63028152600481018990526024810188905260ff871660448201526064810186905292519093600160a060020a03169263949dfa6392608480830193919282900301818787803b15156102c157fe5b6102c65a03f115156102cf57fe5b5050604051519150505b949350505050565b600154600160a060020a031681565b60005433600160a060020a0390811691161461030857fe5b80600160a060020a038116151561031f5760006000fd5b8130600160a060020a031681600160a060020a0316141515156103425760006000fd5b600254600160a060020a038481169116141561035e5760006000fd5b60028054600160a060020a031916600160a060020a0385161790555b5b505b505b50565b60005433600160a060020a0390811691161461039a57fe5b600054600160a060020a03828116911614156103b65760006000fd5b60018054600160a060020a031916600160a060020a0383161790555b5b50565b6002546040805160006020918201819052825160e260020a633de93117028152600481018990526024810188905260ff871660448201526064810186905292519093600160a060020a03169263f7a4c45c92608480830193919282900301818787803b15156102c157fe5b6102c65a03f115156102cf57fe5b5050604051519150505b9493505050505600a165627a7a7230582085a99ef2c72ef0cb98c5c526e3dc415696fdcc5133b1250396ad675a648ef64d0029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1503388622158
+}

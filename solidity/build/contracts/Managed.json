@@ -1,0 +1,78 @@
+{
+  "contract_name": "Managed",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "newManager",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "manager",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "acceptManagement",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_newManager",
+          "type": "address"
+        }
+      ],
+      "name": "transferManagement",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": false,
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_prevManager",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "_newManager",
+          "type": "address"
+        }
+      ],
+      "name": "ManagerUpdate",
+      "type": "event"
+    }
+  ],
+  "unlinked_binary": "0x6060604052341561000c57fe5b5b60008054600160a060020a03191633600160a060020a03161790555b5b6101f8806100396000396000f300606060405263ffffffff60e060020a600035041663429060298114610042578063481c6a751461006e578063c8c2fe6c1461009a578063e4edf852146100ac575bfe5b341561004a57fe5b6100526100ca565b60408051600160a060020a039092168252519081900360200190f35b341561007657fe5b6100526100d9565b60408051600160a060020a039092168252519081900360200190f35b34156100a257fe5b6100aa6100e8565b005b34156100b457fe5b6100aa600160a060020a0360043516610178565b005b600154600160a060020a031681565b600054600160a060020a031681565b60015433600160a060020a039081169116146101045760006000fd5b60005460015460408051600160a060020a03938416815292909116602083015280517fbe4cc281795971a471c980e842627a7f1ea3892ddfce8c5b6357cd2611c197329281900390910190a16001805460008054600160a060020a0319908116600160a060020a038416179091551690555b565b60005433600160a060020a0390811691161461019057fe5b600054600160a060020a03828116911614156101ac5760006000fd5b60018054600160a060020a031916600160a060020a0383161790555b5b505600a165627a7a723058208e7cf6c39702964702e9161ea3df55532ab21acf2bc0131bd53d2ec2c644f4210029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1503388622158
+}

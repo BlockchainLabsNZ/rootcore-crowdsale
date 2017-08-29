@@ -14,7 +14,7 @@
         },
         {
           "name": "_reserveRatio",
-          "type": "uint8"
+          "type": "uint32"
         },
         {
           "name": "_depositAmount",
@@ -44,7 +44,7 @@
         },
         {
           "name": "_reserveRatio",
-          "type": "uint8"
+          "type": "uint32"
         },
         {
           "name": "_sellAmount",
@@ -65,5 +65,5 @@
   "unlinked_binary": "0x",
   "networks": {},
   "schema_version": "0.0.5",
-  "updated_at": 1503388700644
+  "updated_at": 1504013940447
 }

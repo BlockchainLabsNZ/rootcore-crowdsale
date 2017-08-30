@@ -9,10 +9,8 @@ contract TestCrowdsaleController is CrowdsaleController {
         ISmartToken _token,
         uint256 _startTime,
         address _beneficiary,
-        address _btcs,
-        bytes32 _realEtherCapHash,
         uint256 _startTimeOverride)
-        CrowdsaleController(_token, _startTime, _beneficiary, _btcs, _realEtherCapHash)
+        CrowdsaleController(_token, _startTime, _beneficiary)
     {
         startTime = _startTimeOverride;
         endTime = startTime + DURATION;

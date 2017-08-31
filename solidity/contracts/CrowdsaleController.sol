@@ -13,7 +13,7 @@ import './interfaces/ISmartToken.sol';
 */
 contract CrowdsaleController is SmartTokenController {
     uint256 public constant PRESALE_DURATION = 14 days;                 // pressale duration
-    uint public constant PRESALE_MIN_CONTRIBUTION = 200 wei;      // pressale min contribution
+    //uint256 public constant PRESALE_MIN_CONTRIBUTION = 200 wei;      // pressale min contribution
     uint256 public constant DURATION = 14 days;                 // crowdsale duration
     uint256 public constant TOKEN_PRICE_N = 1;                  // initial price in wei (numerator)
     uint256 public constant TOKEN_PRICE_D = 0.001 ether;                // initial price in wei (denominator)
@@ -26,6 +26,7 @@ contract CrowdsaleController is SmartTokenController {
     uint256 public totalEtherCap = 1000000 ether;   // current ether contribution cap, initialized with a temp value as a safety mechanism until the real cap is revealed
     uint256 public totalEtherContributed = 0;       // ether contributed so far
     address public beneficiary = 0x0;               // address to receive all ether contributions
+    uint256 public presaleMinContribution = 200;      // pressale min contribution 
 
     // triggered on each contribution
     event Contribution(address indexed _contributor, uint256 _amount, uint256 _return);
@@ -73,7 +74,7 @@ contract CrowdsaleController is SmartTokenController {
 
     // verifies that the presale contribution is more than presale minimum
     modifier validatePresaleMinPrice() {
-        require(msg.value >= PRESALE_MIN_CONTRIBUTION);
+        require(msg.value >= presaleMinContribution);
         _;
     }
 

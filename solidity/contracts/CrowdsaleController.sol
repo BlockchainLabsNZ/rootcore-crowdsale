@@ -13,7 +13,7 @@ import './interfaces/ISmartToken.sol';
 */
 contract CrowdsaleController is SmartTokenController {
     uint256 public constant PRESALE_DURATION = 14 days;                 // pressale duration
-    uint public constant PRESALE_MIN_CONTRIBUTION = 200000000000000000000;      // pressale min contribution
+    uint public constant PRESALE_MIN_CONTRIBUTION = 200 wei;      // pressale min contribution
     uint256 public constant DURATION = 14 days;                 // crowdsale duration
     uint256 public constant TOKEN_PRICE_N = 1;                  // initial price in wei (numerator)
     uint256 public constant TOKEN_PRICE_D = 0.001 ether;                // initial price in wei (denominator)
@@ -73,16 +73,9 @@ contract CrowdsaleController is SmartTokenController {
 
     // verifies that the presale contribution is more than presale minimum
     modifier validatePresaleMinPrice() {
-        require(msg.value >= 10000000000000000000);
+        require(msg.value >= PRESALE_MIN_CONTRIBUTION);
         _;
     }
-
-    // test modifier
-    modifier dontPass() {
-        throw;
-        _;
-    }
-     
 
     // verifies that the presale contribution is from predefined address - TBD (not in use unless we decide to make a whitelist.)
     modifier validatePresaleAddress() {
@@ -109,7 +102,6 @@ contract CrowdsaleController is SmartTokenController {
     function contributeETH()
         public
         payable
-        dontPass
         between(startTime, endTime)
         returns (uint256 amount)
     {
@@ -125,7 +117,6 @@ contract CrowdsaleController is SmartTokenController {
     function contributePreSale()
         public
         payable
-        dontPass
         between(safeSub(startTime,PRESALE_DURATION), startTime)
         validatePresaleMinPrice
         validatePresaleAddress

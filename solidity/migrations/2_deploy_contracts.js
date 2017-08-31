@@ -26,5 +26,5 @@ module.exports = async (deployer) => {
     deployer.deploy(BancorFormula);
     deployer.deploy(BancorFormulaProxy, '0x125463');
     deployer.deploy(BancorChanger, SmartToken.address, '0x124', 0, '0x0', 0);
-    deployer.deploy(CrowdsaleController, SmartToken.address, 4102444800, '0x125');
+    deployer.deploy(CrowdsaleController, SmartToken.address, 4102444800, '0x125',200000000000000000000);
 };

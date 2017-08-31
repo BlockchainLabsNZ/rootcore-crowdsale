@@ -9,8 +9,9 @@ contract TestCrowdsaleController is CrowdsaleController {
         ISmartToken _token,
         uint256 _startTime,
         address _beneficiary,
+        uint256 _presaleMinContribution,
         uint256 _startTimeOverride)
-        CrowdsaleController(_token, _startTime, _beneficiary)
+        CrowdsaleController(_token, _startTime, _beneficiary, _presaleMinContribution)
     {
         startTime = _startTimeOverride;
         endTime = startTime + DURATION;

@@ -26,6 +26,7 @@ contract CrowdsaleController is SmartTokenController {
     uint256 public totalEtherCap = 1000000 ether;   // current ether contribution cap, initialized with a temp value as a safety mechanism until the real cap is revealed
     uint256 public totalEtherContributed = 0;       // ether contributed so far
     address public beneficiary = 0x0;               // address to receive all ether contributions
+    uint256 public presaleMinContribution = 200 ether;      // pressale min contribution initialized with a temp value as a safety mechanism
 
     // triggered on each contribution
     event Contribution(address indexed _contributor, uint256 _amount, uint256 _return);
@@ -37,7 +38,7 @@ contract CrowdsaleController is SmartTokenController {
         @param _startTime      crowdsale start time
         @param _beneficiary    address to receive all ether contributions
     */
-    function CrowdsaleController(ISmartToken _token, uint256 _startTime, address _beneficiary)
+    function CrowdsaleController(ISmartToken _token, uint256 _startTime, address _beneficiary, uint256 _presaleMinContribution)
         SmartTokenController(_token)
         validAddress(_beneficiary)
         earlierThan(_startTime)
@@ -45,6 +46,7 @@ contract CrowdsaleController is SmartTokenController {
         startTime = _startTime;
         endTime = startTime + DURATION;
         beneficiary = _beneficiary;
+        presaleMinContribution = _presaleMinContribution;
     }
 
     // verifies that the gas price is lower than 50 gwei
@@ -73,7 +75,7 @@ contract CrowdsaleController is SmartTokenController {
 
     // verifies that the presale contribution is more than presale minimum
     modifier validatePresaleMinPrice() {
-        require(msg.value >= PRESALE_MIN_CONTRIBUTION);
+        require(msg.value >= presaleMinContribution);
         _;
     }
 

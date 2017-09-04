@@ -23,3 +23,9 @@ solidity/build/contracts/TestERC20Token.json
 solidity/build/contracts/TestUtils.json
 solidity/build/contracts/TokenHolder.json
 solidity/build/contracts/Utils.json
+.DS_STORE
+.vscode
+node_modules
+npm-debug.log
+*.pyc
+

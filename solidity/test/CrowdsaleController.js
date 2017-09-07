@@ -187,6 +187,19 @@ contract('CrowdsaleController', (accounts) => {
         }
     });
 
+    it('should throw when attempting to contribute presale while sale is in progress', async () => {
+        let controller = await initController(accounts, true, startTimeInProgress);
+
+        try {
+            await controller.contributePreSale({ value: 2000 });
+            assert(false, "didn't throw");
+        }
+        catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+
+
     it('should throw when attempting to contribute ether after the crowdsale has finished', async () => {
         let controller = await initController(accounts, true, startTimeFinished);
 

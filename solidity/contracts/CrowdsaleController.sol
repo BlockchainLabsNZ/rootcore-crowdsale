@@ -1,7 +1,10 @@
 pragma solidity ^0.4.11;
 import './SmartTokenController.sol';
 import './Utils.sol';
+import './Managed.sol';
+import './Pausable.sol';
 import './interfaces/ISmartToken.sol';
+
 
 /*
     Crowdsale v0.1
@@ -11,7 +14,7 @@ import './interfaces/ISmartToken.sol';
     Note that 20% of the contributions are the Bancor token's reserve
     Presale contributes are allocated (manually) with additional 20% tokens from the beneficiary tokens.
 */
-contract CrowdsaleController is SmartTokenController {
+contract CrowdsaleController is SmartTokenController, Managed, Pausable {
     uint256 public constant PRESALE_DURATION = 14 days;                 // pressale duration
     uint256 public constant PRESALE_MIN_CONTRIBUTION = 200 wei;      // pressale min contribution
     uint256 public constant DURATION = 14 days;                 // crowdsale duration
@@ -23,7 +26,7 @@ contract CrowdsaleController is SmartTokenController {
 
     uint256 public startTime = 0;                   // crowdsale start time (in seconds)
     uint256 public endTime = 0;                     // crowdsale end time (in seconds)
-    uint256 public totalEtherCap = 1000000 ether;   // current ether contribution cap, initialized with a temp value as a safety mechanism until the real cap is revealed
+    uint256 public totalEtherCap = 1000000 ether;   // current ether contribution cap
     uint256 public totalEtherContributed = 0;       // ether contributed so far
     address public beneficiary = 0x0;               // address to receive all ether contributions
     uint256 public presaleMinContribution = 200 ether;      // pressale min contribution initialized with a temp value as a safety mechanism
@@ -40,6 +43,7 @@ contract CrowdsaleController is SmartTokenController {
     */
     function CrowdsaleController(ISmartToken _token, uint256 _startTime, address _beneficiary, uint256 _presaleMinContribution)
         SmartTokenController(_token)
+        //SmartTokenController(new SmartToken(x,y,x)  _token)
         validAddress(_beneficiary)
         earlierThan(_startTime)
     {
@@ -47,6 +51,8 @@ contract CrowdsaleController is SmartTokenController {
         endTime = startTime + DURATION;
         beneficiary = _beneficiary;
         presaleMinContribution = _presaleMinContribution;
+
+       // token.disable(...)
     }
 
     // verifies that the gas price is lower than 50 gwei
@@ -105,6 +111,7 @@ contract CrowdsaleController is SmartTokenController {
         public
         payable
         between(startTime, endTime)
+        whenNotPaused
         returns (uint256 amount)
     {
         return processContribution();
@@ -120,6 +127,7 @@ contract CrowdsaleController is SmartTokenController {
         public
         payable
         between(safeSub(startTime,PRESALE_DURATION), startTime)
+        whenNotPaused
         validatePresaleMinPrice
         validatePresaleAddress
         returns (uint256 amount)

@@ -18,19 +18,19 @@ let realCap = 1000;
 let realCapLarge = 1000000000000000000000000000000000000;
 // let realCapKey = 234;
 let badContributionGasPrice = 50000000001;
-let presaleMinContribution = 200;
+//let presaleMinContribution = 200;
 let moreThanMaxContribution = 1001;
 
 async function generateDefaultController() {
-    return await CrowdsaleController.new(tokenAddress, startTime, beneficiaryAddress, presaleMinContribution);
+    return await CrowdsaleController.new(tokenAddress, startTime, beneficiaryAddress);
 }
 
 // used by contribution tests, creates a controller that's already in progress
 async function initController(accounts, activate, startTimeOverride = startTimeInProgress) {
-    token = await SmartToken.new('Token1', 'TKN1', 2);
+    token = await SmartToken.new('Token1', 'TKN1', 18);
     tokenAddress = token.address;
 
-    let controller = await TestCrowdsaleController.new(tokenAddress, startTime, beneficiaryAddress, presaleMinContribution, startTimeOverride);
+    let controller = await TestCrowdsaleController.new(tokenAddress, startTime, beneficiaryAddress, startTimeOverride);
     let controllerAddress = controller.address;
 
     if (activate) {
@@ -68,7 +68,7 @@ contract('CrowdsaleController', (accounts) => {
 
     it('should throw when attempting to construct a controller with no token', async () => {
         try {
-            await CrowdsaleController.new('0x0', startTime, beneficiaryAddress, presaleMinContribution);
+            await CrowdsaleController.new('0x0', startTime, beneficiaryAddress);
             assert(false, "didn't throw");
         }
         catch (error) {
@@ -78,7 +78,7 @@ contract('CrowdsaleController', (accounts) => {
 
     it('should throw when attempting to construct a controller with start time that has already passed', async () => {
         try {
-            await CrowdsaleController.new(tokenAddress, 10000000, beneficiaryAddress, presaleMinContribution);
+            await CrowdsaleController.new(tokenAddress, 10000000, beneficiaryAddress);
             assert(false, "didn't throw");
         }
         catch (error) {
@@ -88,7 +88,7 @@ contract('CrowdsaleController', (accounts) => {
 
     it('should throw when attempting to construct a controller without beneficiary address', async () => {
         try {
-            await CrowdsaleController.new(tokenAddress, startTime, '0x0', presaleMinContribution);
+            await CrowdsaleController.new(tokenAddress, startTime, '0x0');
             assert(false, "didn't throw");
         }
         catch (error) {

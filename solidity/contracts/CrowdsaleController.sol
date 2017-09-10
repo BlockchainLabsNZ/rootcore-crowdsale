@@ -11,14 +11,14 @@ import './interfaces/ISmartToken.sol';
 
     The crowdsale version of the smart token controller, allows contributing ether in exchange for Rootcoin tokens
     The price remains fixed for the entire duration of the crowdsale
-    Note that 20% of the contributions are the Bancor token's reserve
+    Note that 20% of the contributions are for the Bancor token's reserve
     Presale contributes are allocated (manually) with additional 20% tokens from the beneficiary tokens.
 */
 contract CrowdsaleController is SmartTokenController, Managed, Pausable {
     string public version = "0.1";
 
     uint256 public constant PRESALE_DURATION = 14 days;                 // pressale duration
-    //uint256 public constant PRESALE_MIN_CONTRIBUTION = 200 wei;      // pressale min contribution
+    uint256 public constant PRESALE_MIN_CONTRIBUTION = 200;// 200 ether;     // pressale min contribution
     uint256 public constant MIN_CONTRIBUTION = 100 wei;//0.01 ether;      // general sale min contribution
     uint256 public constant DURATION = 14 days;                 // crowdsale duration
     uint256 public constant TOKEN_PRICE_N = 1;                  // initial price in wei (numerator)
@@ -31,7 +31,6 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
     uint256 public totalEtherCap = 1000000 ether;   // current ether contribution cap
     uint256 public totalEtherContributed = 0;       // ether contributed so far
     address public beneficiary = 0x0;               // address to receive all ether contributions
-    uint256 public presaleMinContribution = 200 ether;      // pressale min contribution initialized with a temp value as a safety mechanism
 
     mapping(address => bool) public whiteList;  //whitelist of accounts that can participate in presale and also contribute more than MAX_CONTRIBUTION
      
@@ -45,18 +44,16 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
         @param _token          smart token the crowdsale is for
         @param _startTime      crowdsale start time
         @param _beneficiary    address to receive all ether contributions
-        @param _presaleMinContribution    minimum presale contribution amount in wei 
     */
-    function CrowdsaleController(ISmartToken _token, uint256 _startTime, address _beneficiary, uint256 _presaleMinContribution)
+    function CrowdsaleController(ISmartToken _token, uint256 _startTime, address _beneficiary)
         SmartTokenController(_token)
-        //SmartTokenController(new SmartToken(x,y,x)  _token)
+        //SmartTokenController(new SmartToken(x,y,x))
         validAddress(_beneficiary)
         earlierThan(_startTime)
     {
         startTime = _startTime;
         endTime = startTime + DURATION;
         beneficiary = _beneficiary;
-        presaleMinContribution = _presaleMinContribution;
 
        // token.disable(...)
     }
@@ -93,7 +90,7 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
 
     // verifies that the presale contribution is more than presale minimum
     modifier validatePresaleMinPrice() {
-        require(msg.value >= presaleMinContribution);
+        require(msg.value >= PRESALE_MIN_CONTRIBUTION);
         _;
     }
 

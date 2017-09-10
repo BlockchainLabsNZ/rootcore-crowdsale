@@ -19,6 +19,7 @@ let realCapLarge = 1000000000000000000000000000000000000;
 // let realCapKey = 234;
 let badContributionGasPrice = 50000000001;
 let presaleMinContribution = 200;
+let moreThanMaxContribution = 1001;
 
 async function generateDefaultController() {
     return await CrowdsaleController.new(tokenAddress, startTime, beneficiaryAddress, presaleMinContribution);
@@ -35,6 +36,8 @@ async function initController(accounts, activate, startTimeOverride = startTimeI
     if (activate) {
         await token.transferOwnership(controllerAddress);
         await controller.acceptTokenOwnership();
+        await controller.addToWhitelist(accounts[4]); //put account[4] in whitelist
+        await controller.addToWhitelist(accounts[0]); //put account[0] in whitelist
     }
     return controller;
 }
@@ -100,12 +103,33 @@ contract('CrowdsaleController', (accounts) => {
         assert.notEqual(returnAmount.toNumber(), 0);
     });
 
+    it('verifies that account 0 and 4 are on the whitelist', async () => {
+        let controller = await initController(accounts, true);
+        let account0isInWhiteList = await controller.whiteList(accounts[0]);
+        let account4isInWhiteList = await controller.whiteList(accounts[4]);
+        assert.equal(account0isInWhiteList && account4isInWhiteList, true);
+    });
+
     it('verifies that 1 ether equals 1000 tokens', async () => {
         let controller = await initController(accounts, true);
         let returnAmount = await controller.computeReturn.call(1);
         assert.isNumber(returnAmount.toNumber());
         assert.notEqual(returnAmount.toNumber(), 0);
         assert.equal(returnAmount.toNumber(), 1000000000000000);
+    });
+
+    it('verifies that account3 can be added to whitelist', async () => {
+        let controller = await initController(accounts, true);
+        await controller.addToWhitelist(accounts[3]);
+        let accunt3Added = await controller.whiteList(accounts[3]);
+        assert.equal(accunt3Added, true);
+    });
+
+    it('verifies that account3 can be removed to whitelist', async () => {
+        let controller = await initController(accounts, true);
+        await controller.removeFromWhitelist(accounts[3]);
+        let accunt3Added = await controller.whiteList(accounts[3]);
+        assert.equal(accunt3Added, false);
     });
 
     it('verifies that computeReturn returns the same amount as contributeETH', async () => {
@@ -149,6 +173,20 @@ contract('CrowdsaleController', (accounts) => {
 
         let totalEtherContributed = await controller.totalEtherContributed.call();
         assert.equal(totalEtherContributed, 200);
+    });
+
+    it('verifies that whitelist account can contribute more than maximum account limit', async () => {
+        let controller = await initController(accounts, true);
+        
+        let res = await controller.contributeETH({ value: moreThanMaxContribution, from: accounts[0]});
+        let purchaseAmount = getContributionAmount(res);
+
+        assert.isNumber(purchaseAmount);
+        assert.notEqual(purchaseAmount, 0);
+
+        let contributorTotalTokenBalance = await token.balanceOf.call(accounts[0]);
+        assert.equal(contributorTotalTokenBalance, purchaseAmount);
+
     });
 
     it('should throw when attempting to contribute ether while the controller is not active', async () => {
@@ -298,6 +336,18 @@ contract('CrowdsaleController', (accounts) => {
         }
     });
 
+    it('should throw when attempting to contributing through presale with unauthorized account', async () => {
+        let controller = await initController(accounts, true, startTimePresaleInProgress);
+
+        try {
+            await controller.contributePreSale({ value: 200, from: accounts[1]});
+            assert(false, "didn't throw");
+        }
+        catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+
     it('should throw when attempting to contributing through presale with small amount', async () => {
         let controller = await initController(accounts, true, startTimePresaleInProgress);
 
@@ -310,5 +360,46 @@ contract('CrowdsaleController', (accounts) => {
             return utils.ensureException(error);
         }
     });
+
+    it('should throw when attempting to contributing with too small amount', async () => {
+        let controller = await initController(accounts, true, startTimeInProgress);
+
+        try {
+            await controller.sendTransaction({ value: 50 });
+
+            assert(false, "didn't throw");
+        }
+        catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+    it('should throw when attempting to contributing with too large amount', async () => {
+        let controller = await initController(accounts, true, startTimeInProgress);
+
+        try {
+            await controller.sendTransaction({ value: 1001, from: accounts[1] });
+
+            assert(false, "didn't throw");
+        }
+        catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+
+    it('should throw when attempting to contributing with too large amount in two seperate transfers', async () => {
+        let controller = await initController(accounts, true, startTimeInProgress);
+
+        try {
+            await controller.sendTransaction({ value: 500, from: accounts[1] });
+            await controller.sendTransaction({ value: 501, from: accounts[1] });
+
+            assert(false, "didn't throw");
+        }
+        catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+    
+    
 });
 

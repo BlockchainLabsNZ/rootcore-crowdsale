@@ -22,23 +22,20 @@ let badContributionGasPrice = 50000000001;
 let moreThanMaxContribution = 1001;
 
 async function generateDefaultController() {
-    return await CrowdsaleController.new(tokenAddress, startTime, beneficiaryAddress);
+    return await CrowdsaleController.new(startTime, beneficiaryAddress);
 }
 
 // used by contribution tests, creates a controller that's already in progress
 async function initController(accounts, activate, startTimeOverride = startTimeInProgress) {
-    // token = await SmartToken.new('Token1', 'TKN1', 18);
-    // tokenAddress = token.address;
-
-    let controller = await TestCrowdsaleController.new(tokenAddress, startTime, beneficiaryAddress, startTimeOverride);
+    
+    let controller = await TestCrowdsaleController.new(startTime, beneficiaryAddress, startTimeOverride);
     let controllerAddress = controller.address;
 
     if (activate) {
         
         token = SmartToken.at(await controller.token.call());
         tokenAddress = token.address;
-        // await token.transferOwnership(controllerAddress);
-        // await controller.acceptTokenOwnership();
+
         await controller.addToWhitelist(accounts[4]); //put account[4] in whitelist
         await controller.addToWhitelist(accounts[0]); //put account[0] in whitelist
     }
@@ -71,7 +68,7 @@ contract('CrowdsaleController', (accounts) => {
 
     it('should throw when attempting to construct a controller with start time that has already passed', async () => {
         try {
-            await CrowdsaleController.new(tokenAddress, 10000000, beneficiaryAddress);
+            await CrowdsaleController.new(10000000, beneficiaryAddress);
             assert(false, "didn't throw");
         }
         catch (error) {
@@ -81,7 +78,7 @@ contract('CrowdsaleController', (accounts) => {
 
     it('should throw when attempting to construct a controller without beneficiary address', async () => {
         try {
-            await CrowdsaleController.new(tokenAddress, startTime, '0x0');
+            await CrowdsaleController.new(startTime, '0x0');
             assert(false, "didn't throw");
         }
         catch (error) {

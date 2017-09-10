@@ -5,11 +5,10 @@ import '../CrowdsaleController.sol';
 */
 contract TestCrowdsaleController is CrowdsaleController {
     function TestCrowdsaleController(
-        ISmartToken _token,
         uint256 _startTime,
         address _beneficiary,
         uint256 _startTimeOverride)
-        CrowdsaleController(_token, _startTime, _beneficiary)
+        CrowdsaleController(_startTime, _beneficiary)
     {
         startTime = _startTimeOverride;
         endTime = startTime + DURATION;

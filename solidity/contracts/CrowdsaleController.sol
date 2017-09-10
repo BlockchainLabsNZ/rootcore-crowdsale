@@ -45,13 +45,10 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
 
     /**
         @dev constructor
-
-        @param _token          smart token the crowdsale is for
         @param _startTime      crowdsale start time
         @param _beneficiary    address to receive all ether contributions
     */
-    function CrowdsaleController(ISmartToken _token, uint256 _startTime, address _beneficiary)
-        //SmartTokenController(_token)
+    function CrowdsaleController(uint256 _startTime, address _beneficiary)
         SmartTokenController(new SmartToken(TOKEN_NAME, TOKEN_SYM, TOKEN_DEC))
         validAddress(_beneficiary)
         earlierThan(_startTime)

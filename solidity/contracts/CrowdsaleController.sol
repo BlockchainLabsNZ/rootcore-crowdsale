@@ -3,6 +3,7 @@ import './SmartTokenController.sol';
 import './Utils.sol';
 import './Managed.sol';
 import './Pausable.sol';
+import './SmartToken.sol';
 import './interfaces/ISmartToken.sol';
 
 
@@ -18,13 +19,17 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
     string public version = "0.1";
 
     uint256 public constant PRESALE_DURATION = 14 days;                 // pressale duration
-    uint256 public constant PRESALE_MIN_CONTRIBUTION = 200;// 200 ether;     // pressale min contribution
+    uint256 public constant PRESALE_MIN_CONTRIBUTION = 200 wei;// 200 ether;     // pressale min contribution
     uint256 public constant MIN_CONTRIBUTION = 100 wei;//0.01 ether;      // general sale min contribution
     uint256 public constant DURATION = 14 days;                 // crowdsale duration
     uint256 public constant TOKEN_PRICE_N = 1;                  // initial price in wei (numerator)
     uint256 public constant TOKEN_PRICE_D = 0.001 ether;                // initial price in wei (denominator)
     uint256 public constant MAX_GAS_PRICE = 50000000000 wei;    // maximum gas price for contribution transactions
     uint256 public constant MAX_CONTRIBUTION = 1000 wei;//40 ether;    // maximum ether allowed to contribute by an unauthorized single account
+
+    string public constant TOKEN_NAME = "Rootcoin"; //Token name
+    string public constant TOKEN_SYM = "RCT";       //Token symbol
+    uint8 public constant TOKEN_DEC = 18;           //Token decimals
 
     uint256 public startTime = 0;                   // crowdsale start time (in seconds)
     uint256 public endTime = 0;                     // crowdsale end time (in seconds)
@@ -46,16 +51,14 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
         @param _beneficiary    address to receive all ether contributions
     */
     function CrowdsaleController(ISmartToken _token, uint256 _startTime, address _beneficiary)
-        SmartTokenController(_token)
-        //SmartTokenController(new SmartToken(x,y,x))
+        //SmartTokenController(_token)
+        SmartTokenController(new SmartToken(TOKEN_NAME, TOKEN_SYM, TOKEN_DEC))
         validAddress(_beneficiary)
         earlierThan(_startTime)
     {
         startTime = _startTime;
         endTime = startTime + DURATION;
         beneficiary = _beneficiary;
-
-       // token.disable(...)
     }
 
     // verifies that the gas price is lower than 50 gwei

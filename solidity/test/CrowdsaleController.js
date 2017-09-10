@@ -27,15 +27,18 @@ async function generateDefaultController() {
 
 // used by contribution tests, creates a controller that's already in progress
 async function initController(accounts, activate, startTimeOverride = startTimeInProgress) {
-    token = await SmartToken.new('Token1', 'TKN1', 18);
-    tokenAddress = token.address;
+    // token = await SmartToken.new('Token1', 'TKN1', 18);
+    // tokenAddress = token.address;
 
     let controller = await TestCrowdsaleController.new(tokenAddress, startTime, beneficiaryAddress, startTimeOverride);
     let controllerAddress = controller.address;
 
     if (activate) {
-        await token.transferOwnership(controllerAddress);
-        await controller.acceptTokenOwnership();
+        
+        token = SmartToken.at(await controller.token.call());
+        tokenAddress = token.address;
+        // await token.transferOwnership(controllerAddress);
+        // await controller.acceptTokenOwnership();
         await controller.addToWhitelist(accounts[4]); //put account[4] in whitelist
         await controller.addToWhitelist(accounts[0]); //put account[0] in whitelist
     }
@@ -48,15 +51,15 @@ function getContributionAmount(transaction, logIndex = 0) {
 
 contract('CrowdsaleController', (accounts) => {
     before(async () => {
-        let token = await SmartToken.new('Token1', 'TKN1', 2);
-        tokenAddress = token.address;
+
         presaleContributorAddress = accounts[4];
     });
 
     it('verifies the base storage values after construction', async () => {
         let controller = await generateDefaultController();
-        let token = await controller.token.call();
-        assert.equal(token, tokenAddress);
+        let token = SmartToken.at(await controller.token.call());
+        let tokenSymbol = await token.symbol.call();
+        assert.equal(tokenSymbol, "RCT");
         let start = await controller.startTime.call();
         assert.equal(start.toNumber(), startTime);
         let endTime = await controller.endTime.call();
@@ -64,16 +67,6 @@ contract('CrowdsaleController', (accounts) => {
         assert.equal(endTime.toNumber(), startTime + duration.toNumber());
         let beneficiary = await controller.beneficiary.call();
         assert.equal(beneficiary, beneficiaryAddress);
-    });
-
-    it('should throw when attempting to construct a controller with no token', async () => {
-        try {
-            await CrowdsaleController.new('0x0', startTime, beneficiaryAddress);
-            assert(false, "didn't throw");
-        }
-        catch (error) {
-            return utils.ensureException(error);
-        }
     });
 
     it('should throw when attempting to construct a controller with start time that has already passed', async () => {
@@ -155,6 +148,8 @@ contract('CrowdsaleController', (accounts) => {
     it('verifies balances and total eth contributed after contributing ether', async () => {
         let controller = await initController(accounts, true);
 
+        //let token = SmartToken.at(await controller.token.call());
+
         let prevEtherBalance = await web3.eth.getBalance(beneficiaryAddress);
 
         let res = await controller.contributeETH({ value: 200, from: accounts[1] });
@@ -177,6 +172,7 @@ contract('CrowdsaleController', (accounts) => {
 
     it('verifies that whitelist account can contribute more than maximum account limit', async () => {
         let controller = await initController(accounts, true);
+        //let token = SmartToken.at(await controller.token.call());
         
         let res = await controller.contributeETH({ value: moreThanMaxContribution, from: accounts[0]});
         let purchaseAmount = getContributionAmount(res);
@@ -265,6 +261,8 @@ contract('CrowdsaleController', (accounts) => {
 
     it('verifies balances and total eth contributed after contributing through presale', async () => {
         let controller = await initController(accounts, true, startTimePresaleInProgress);
+        
+        //let token = SmartToken.at(await controller.token.call());
 
         let prevContributorTokenBalance = await token.balanceOf.call(presaleContributorAddress);
         let prevEtherBalance = await web3.eth.getBalance(beneficiaryAddress);

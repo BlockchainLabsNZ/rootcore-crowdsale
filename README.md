@@ -1,5 +1,5 @@
 ﻿# Rootcore Crowdsale contracts 
-# based on Bancor Protocol Contracts v0.6 (alpha)
+# based on Bancor Protocol Contracts v0.3 (alpha)
 Bancor is a **smart-contract-based token conversion protocol**, which enables a single party to convert any 
 token to another, without requiring a second party to exchange with. It achieves this through the use of 
 reserve-tokens, which provide liquidity through autonomous algorithmic price discovery, regardless of trade volume.
@@ -9,15 +9,6 @@ The Bancor protocol represents the first technological solution for the classic 
 
 Through the use of smart-contracts, Smart Tokens can be created that hold one or more other tokens in their reserve. Tokens may represent existing national currencies or other types of assets. By using a reserve token model and algorithmically-calculated conversion rates, the Bancor Protocol creates a new type of ecosystem for asset exchange, with no central control. This decentralized hierarchical monetary system lays the foundation for an autonomous decentralized global exchange with numerous and substantial advantages.
 
-## Warning
-
-Bancor is a work in progress. Make sure you understand the risks before using it.
-
-# The Bancor Standards
-
-Bancor protocol is implemented using multiple contracts. The main ones are SmartToken and BancorChanger.
-BancorChanger implements the token changer standard (See https://github.com/ethereum/EIPs/issues/228) and is responsible for converting between a token and its reserves.
-SmartToken represents a changer aware ERC-20 compliant token.
 
 # The Smart Token Standard
 
@@ -88,66 +79,6 @@ Triggered when the total supply is decreased.
 <br>
 <br>
 
-# The Bancor Changer Standard
-
-The following section describes standard functions a bancor changer can implement.
-
-## Motivation
-
-Those will allow dapps and wallets to buy and sell the token.
-
-The most important here is `change`.
-
-## Specification
-
-### BancorToken
-
-First and foremost, a Bancor Changer is also an EIP-228 compliant changer.
-As such, it implements both the standard changer methods and the standard changer events.
-
-### Methods
-
-**reserveTokenCount**
-```cs
-function reserveTokenCount() public constant returns (uint16 count)
-```
-Gets the number of reserve tokens defined for the token.
-<br>
-<br>
-<br>
-**reserveTokens**
-```cs
-function reserveTokens() public constant returns (address[] reserveTokens)
-```
-Gets an array of the reserve token contract addresses.
-<br>
-<br>
-<br>
-**reserves**
-```cs
-function reserves(address _reserveToken) public constant
-```
-Gets the reserve token details.
-<br>
-<br>
-<br>
-**change**
-```cs
-function change(address _fromToken, address _toToken, uint256 _amount, uint256 _minReturn)
-```
-changes a specific amount of _fromToken to _toToken
-The change will only take place if it returns a value greater or equal to `_minReturn`.
-<br>
-<br>
-<br>
-
-### Events
-
-**Change**
-```cs
-event Change(address indexed _fromToken, address indexed _toToken, address indexed _trader, uint256 _amount, uint256 _return, uint256 _currentPriceN, uint256 _currentPriceD);
-```
-Triggered when a change between one of the changeable tokens takes place.
 
 ## Testing
 Tests are included and can be run using truffle.
@@ -164,12 +95,9 @@ To run the test, execute the following commands from the project's root folder -
 ## Collaborators
 
 * **[Oren Bajayo](https://github.com/bajayo)**
-* **[Yudi Levi](https://github.com/yudilevi)**
-* **[Ilana Pinhas](https://github.com/ilanapi)**
-* **[Barak Manos](https://github.com/barakman)**
-* **[Martin Holst Swende](https://github.com/holiman)**
 
 
 ## License
 
 Bancor Protocol is open source and distributed under the Apache License v2.0
+Rootcore Crowdsale is open source and distributed under the Apache License v2.0

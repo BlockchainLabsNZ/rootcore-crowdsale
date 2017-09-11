@@ -16,10 +16,12 @@
     "compile": "cd solidity && truffle compile",
     "migrate": "cd solidity && truffle migrate",
     "reset": "cd solidity && truffle migrate --reset",
-    "truffle-version": "cd solidity && truffle version"
+    "truffle-version": "cd solidity && truffle version",
+    "solc-compile": "cd solidity && solc --version"
   },
   "dependencies": {
     "ethereumjs-testrpc": "^4.1.1",
+    "solc": "^0.4.16",
     "truffle": "^3.4.9"
   }
 }

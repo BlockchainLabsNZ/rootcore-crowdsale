@@ -15,6 +15,7 @@
     "test-sale": "cd solidity && truffle test ./test/CrowdsaleController.js",
     "compile": "cd solidity && truffle compile",
     "migrate": "cd solidity && truffle migrate",
+    "deploy": "cd solidity && truffle deploy",
     "reset": "cd solidity && truffle migrate --reset",
     "truffle-version": "cd solidity && truffle version",
     "solc-compile": "cd solidity && solc --version"

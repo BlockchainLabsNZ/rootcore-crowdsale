@@ -56,6 +56,7 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
         startTime = _startTime;
         endTime = startTime + DURATION;
         beneficiary = _beneficiary;
+        token.disableTransfers(true);
     }
 
     // verifies that the gas price is lower than 50 gwei

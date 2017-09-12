@@ -21,23 +21,13 @@ Through the use of smart-contracts, Smart Tokens can be created that hold one or
 4. A manager account is also set at the `Managed.sol` constructor as msg.sender, the manager can add addresses to whitelist by calling the `addToWhitelist` function, and pause/unPause the sale as a safety messure.
 5. Contributors are provided with tokens immediatlly when executing the presale and the sale.
 6. when sale ends, the token owner should be set to the Rootcore main multisig wallet.
-7. After finalizing the sale (bounty rewards etc.) the token should be set as transferable by the token owner.
+7. The Ether collected during the sale should be transfered to the foundation multisig wellet. (beneficiary) 
+8. After finalizing the sale (bounty rewards etc.) the token should be set as transferable by the token owner.
 
 During Presale: only whitelist addresses can contribute.
 During sale, whitelist accounts are allowed to transfer more than MAX_CONTRIBUTION
 
 TODO: Pass token args to the CrowdSaleController constuctor and not as constants.?
-
-### Per module description
-
-
-#### Token sale
-The token sale contract has 3 roles:
-1. Sending preminted tokens and incoming ETH to kyber network multisig wallet. Implemented in `KyberNetworkTokenSale.sol`.
-2. Verifying that user is listed and that cap is not exceeded. Implemented in `ContributorApprover.sol`.
-3. Distributing tokens to buyers. Implemented in `KyberNetworkTokenSale.sol`.
-
-The `KyberNetworkTokenSale` contract inherent `ContributorApprover`.
 
 ### Use of Bancor Protocol Contracts v0.3 (alpha)
 We use Bancor Protocol code for the most part of this project.
@@ -48,6 +38,12 @@ The only contract we changed is the `CrowdsaleController.sol` itself which was c
 
 ### Use of zeppling code
 We use open-zeppling code for `Pauseable` logic only but had to change the OwnerOnly modig=fier to managerOnly for quick pause if anything goes wrong during the sale.
+
+### Per module description
+
+### CrowdsaleController
+The `CrowdsaleController.sol` contract is the main contract of this project. It runs the presale and the actual sale.
+Any legit contribution, immediatlly assignes the sender with the calculated amount of tokens. The same amount (1:1 ratio) is assigned to the beneficiary account. Ether collected during the sale is stored at the ether balance of the CrowdsaleController contract. 
 
 ### SmartToken
 

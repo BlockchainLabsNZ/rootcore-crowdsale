@@ -26,10 +26,7 @@ Through the use of smart-contracts, Smart Tokens can be created that hold one or
 During Presale: only whitelist addresses can contribute.
 During sale, whitelist accounts are allowed to transfer more than MAX_CONTRIBUTION
 
-TODO: Pass token args to the CrowdSaleController constuctor and not as constants.??? 
-
-###modifiers
-
+TODO: Pass token args to the CrowdSaleController constuctor and not as constants.?
 
 ### Per module description
 

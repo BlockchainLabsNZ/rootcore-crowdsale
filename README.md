@@ -1,8 +1,10 @@
-﻿# Rootcore Crowdsale contracts 
-# based on Bancor Protocol Contracts v0.3 (alpha)
-Bancor is a **smart-contract-based token conversion protocol**, which enables a single party to convert any 
-token to another, without requiring a second party to exchange with. It achieves this through the use of 
-reserve-tokens, which provide liquidity through autonomous algorithmic price discovery, regardless of trade volume.
+﻿# Rootcore Crowdsale Token Sale
+In this document, we describe the token sale specification and implementation,
+and give an overview over the smart contracts structure. 
+
+## based on Bancor Protocol Contracts v0.3 (alpha) and Zeppelin Solidity
+All Bancor smart contracts, except the CrowdSaleController, are unchanged but solidity version is set to 0.4.15
+Zeppelin Solidity Pausable contract was added and the Owned inharitance was replaced by Managed.
 
 ## Overview
 The Bancor protocol represents the first technological solution for the classic problem in economics known as the “Double Coincidence of Wants”, in the domain of asset exchange. For barter, the coincidence of wants problem was solved through money. For money, exchanges still rely on labor, via bid/ask orders and trade between external agents, to make markets and supply liquidity. 
@@ -89,8 +91,12 @@ Tests are included and can be run using truffle.
 * testrpc v3.0.5+
 
 To run the test, execute the following commands from the project's root folder -
+Run testRPC:
 * npm run testrpc
+Run full project tests:
 * npm test
+Run CrowdsaleController tests only:
+* npm test-sale 
 
 ## Collaborators
 
@@ -99,5 +105,4 @@ To run the test, execute the following commands from the project's root folder -
 
 ## License
 
-Bancor Protocol is open source and distributed under the Apache License v2.0
 Rootcore Crowdsale is open source and distributed under the Apache License v2.0

@@ -1,13 +1,13 @@
 ﻿# Rootcore Crowdsale Token Sale
 In this document, we describe the token sale specification and implementation,
-and give an overview over the smart contracts structure. 
+and give an overview over the smart contracts structure.
 
 ## based on Bancor Protocol Contracts v0.3 (alpha) and Zeppelin Solidity
 All Bancor smart contracts, except the CrowdSaleController, are unchanged but solidity version is set to 0.4.15
-Zeppelin Solidity Pausable contract was added and the Owned inharitance was replaced by Managed.
+Zeppelin Solidity Pausable contract was added and the Owned inheritance was replaced by Managed.
 
 ## Overview
-The Bancor protocol represents the first technological solution for the classic problem in economics known as the “Double Coincidence of Wants”, in the domain of asset exchange. For barter, the coincidence of wants problem was solved through money. For money, exchanges still rely on labor, via bid/ask orders and trade between external agents, to make markets and supply liquidity. 
+The Bancor protocol represents the first technological solution for the classic problem in economics known as the “Double Coincidence of Wants”, in the domain of asset exchange. For barter, the coincidence of wants problem was solved through money. For money, exchanges still rely on labor, via bid/ask orders and trade between external agents, to make markets and supply liquidity.
 
 Through the use of smart-contracts, Smart Tokens can be created that hold one or more other tokens in their reserve. Tokens may represent existing national currencies or other types of assets. By using a reserve token model and algorithmically-calculated conversion rates, the Bancor Protocol creates a new type of ecosystem for asset exchange, with no central control. This decentralized hierarchical monetary system lays the foundation for an autonomous decentralized global exchange with numerous and substantial advantages.
 
@@ -15,35 +15,38 @@ Through the use of smart-contracts, Smart Tokens can be created that hold one or
 ## Detailed description
 
 ### Overview of flow
-1. Deploy: The start time of the sale is set on the constructor. Pre sale starts PRESALE_DURATION (days) before that.
-2. The crowdsaleController deploys a SmartToken to be used by it. Token owner is set as to be the `CrowdsaleController.sol` deployed contractand transfer of tokens is disabled. 
+1. Deploy: The start time of the sale is set on the constructor. Presale starts PRESALE_DURATION (days) before that.
+2. The crowdsaleController deploys a SmartToken to be used by it. Token owner is set as to be the `CrowdsaleController.sol` deployed contract and transfer of tokens is disabled.
 3. Beneficiary address is also set on the constructor args. It should be a multi Sig wallet contract address.
-4. A manager account is also set at the `Managed.sol` constructor as msg.sender, the manager can add addresses to whitelist by calling the `addToWhitelist` function, and pause/unPause the sale as a safety messure.
-5. Contributors are provided with tokens immediatlly when executing the presale and the sale.
+4. A manager account is also set at the `Managed.sol` constructor as msg.sender, the manager can add addresses to white list by calling the `addToWhitelist` function, and pause/unPause the sale as a safety measure.
+5. Contributors are provided with tokens immediately when executing the presale and the sale.
 6. when sale ends, the token owner should be set to the Rootcore main multisig wallet.
-7. The Ether collected during the sale should be transfered to the foundation multisig wellet. (beneficiary) 
+7. The Ether collected during the sale should be transferred to the foundation multisig wallet. (beneficiary)
 8. After finalizing the sale (bounty rewards etc.) the token should be set as transferable by the token owner.
 
-During Presale: only whitelist addresses can contribute.
+During Presale: only white list addresses can contribute.
 During sale, whitelist accounts are allowed to transfer more than MAX_CONTRIBUTION
 
-TODO: Pass token args to the CrowdSaleController constuctor and not as constants.?
+TODO: Pass token args to the CrowdSaleController constructor and not as constants.?
 
 ### Use of Bancor Protocol Contracts v0.3 (alpha)
 We use Bancor Protocol code for the most part of this project.
 The only contract we changed is the `CrowdsaleController.sol` itself which was changed to:
-1 - support a Presale for whitelist accounts only.
+1 - support a Presale for white list accounts only.
 2 - Support max contribution cap per account.
 3 - Deploy the start token on creation.
 
 ### Use of zeppling code
-We use open-zeppling code for `Pauseable` logic only but had to change the OwnerOnly modig=fier to managerOnly for quick pause if anything goes wrong during the sale.
+We use open-zeppling code for `Pauseable` logic only but had to change the OwnerOnly modifier to managerOnly for quick pause if anything goes wrong during the sale.
 
 ### Per module description
 
 ### CrowdsaleController
 The `CrowdsaleController.sol` contract is the main contract of this project. It runs the presale and the actual sale.
-Any legit contribution, immediatlly assignes the sender with the calculated amount of tokens. The same amount (1:1 ratio) is assigned to the beneficiary account. Ether collected during the sale is stored at the ether balance of the CrowdsaleController contract. 
+Whith any legit contribution, the calculated amount of tokens are immediately assignes the sender (token `issue` function is called). The same amount (1:1 ratio) is assigned to the beneficiary account. 
+Ether collected during the sale is stored at the ether balance of the CrowdsaleController contract and should be sent to the foundation multisig wallet when sale is over.
+
+TODO: add finalize sale function that 1 - transfers ether to beneficiary, 2 - enables token transfers, 3 - transfer Token ownership to the foundation.
 
 ### SmartToken
 
@@ -120,7 +123,7 @@ Run testRPC:
 Run full project tests:
 * npm run test
 Run CrowdsaleController tests only:
-* npm run test-sale 
+* npm run test-sale
 
 ## Collaborators
 

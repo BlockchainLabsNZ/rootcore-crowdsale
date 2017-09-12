@@ -16,60 +16,22 @@ Through the use of smart-contracts, Smart Tokens can be created that hold one or
 
 ### Overview of flow
 1. Deploy: The start time of the sale is set on the constructor. Pre sale starts PRESALE_DURATION (days) before that.
-2. The crowdsaleController deploys a SmartToken to be used by it. Token owner is set as to be the `CrowdsaleController.sol` deployed contract. 
+2. The crowdsaleController deploys a SmartToken to be used by it. Token owner is set as to be the `CrowdsaleController.sol` deployed contractand transfer of tokens is disabled. 
 3. Beneficiary address is also set on the constructor args. It should be a multi Sig wallet contract address.
 4. A manager account is also set at the `Managed.sol` constructor as msg.sender, the manager can add addresses to whitelist by calling the `addToWhitelist` function, and pause/unPause the sale as a safety messure.
-5. Contributors are provided with tokens immediatlly.
-
-TODO: Pass token args to the CrowdSaleController constuctor and not as constants.??? 
+5. Contributors are provided with tokens immediatlly when executing the presale and the sale.
+6. when sale ends, the token owner should be set to the Rootcore main multisig wallet.
+7. After finalizing the sale (bounty rewards etc.) the token should be set as transferable by the token owner.
 
 During Presale: only whitelist addresses can contribute.
 During sale, whitelist accounts are allowed to transfer more than MAX_CONTRIBUTION
 
-1. On T - 5 days, we deploy `KyberContirbutorWhitelist.sol` and list users and their cap.
-The listing is done by us with a standard private key. At the end of the listing the ownership on the list is transfered to a secure multisig wallet.
+TODO: Pass token args to the CrowdSaleController constuctor and not as constants.??? 
 
-2. On T - 3, we deploy the token sale contract, namely, `KyberNetworkTokenSale.sol`.
-The contract gets as input an instance of the deployed whitelist.
-Upon deployment, preminted tokens are already distributed.
+###modifiers
 
-3. On T- 2, we manually verify that preminted tokens were assigned to the correct addresses.
-We also try to transfer 1 company token, to see that it works.
-Finally, we call `debugBuy` function to manually verify that ether goes to the correct wallet.
-
-3. On T, the sale starts. At this point users can buy tokens according to their individual caps.
-It is possible to buy several times, as long as cap is not exceeded.
-Token transfers are disabled.
-
-4. On T+1, the open sale starts. At this point users that are in the whitelist can buy tokens with any amount.
-
-5. On T+2, the sale ends
-6. On T+2 + epsilon, `finalizeSale` is called and unsold tokens are burned.  
-7. On T+9 token transfers are enabled.
 
 ### Per module description
-The system has 3 modules, namely, white list, token, and token sale modules.
-
-#### White list
-Implemented in `KyberContirbutorWhitelist.sol`.
-Provides a raw list of addresses and their cap.
-Owner of the contract can list and delist (set cap to 0) users at any point.
-Cap of 1 means the user is a slack user, and their cap is set globally before token sale.
-In practice, we will not make changes in the list after its first initialization, unless issues are discovered.
-This is necessary as we expect > 10k users, and we must start uploading the users before we have a full list.
-For this reason we also have an optimzed version of listing which can take an array as input.
-
-Since we are nice, we will also destory the contract after token sale to save disk space for network node.
-
-#### Token
-Implemented in `KyberNetworkCrystal.sol`. The token is fully compatible with ERC20 standard, with the next two additions:
-
-1. It has a burning functionality that allows user to burn his tokens.
-To optimize gas cost, an auxiliary `burnFrom` function was also implemented.
-This function allows sender to burn tokens that were approved by a spender.
-
-2. It is impossible to transfer tokens during the period of the token sale.
-To be more precise, only the token sale contract is allowed to transfer tokens during the token sale.
 
 
 #### Token sale
@@ -80,14 +42,16 @@ The token sale contract has 3 roles:
 
 The `KyberNetworkTokenSale` contract inherent `ContributorApprover`.
 
-### Use of zeppelin code
-We use open-zeppling code for `SafeMath`, `Ownable` and `StandardToken` logic.
-After first round of testing we discovered two incompatibilities of zepplin's standard token and ERC20 standard.
-The two issues are described [here](https://github.com/OpenZeppelin/zeppelin-solidity/issues/370) and [here](https://github.com/OpenZeppelin/zeppelin-solidity/pull/377).
-We notified zeppling team, and a [PR](https://github.com/OpenZeppelin/zeppelin-solidity/pull/377) to fix the second issue was merged to zepplin code base.
+### Use of Bancor Protocol Contracts v0.3 (alpha)
+We use Bancor Protocol code for the most part of this project.
+The only contract we changed is the `CrowdsaleController.sol` itself which was changed to:
+1 - support a Presale for whitelist accounts only.
+2 - Support max contribution cap per account.
+3 - Deploy the start token on creation.
 
-In our code base we decided to include a fix for both issues, and we expect the auditor to review these changes.
-Changes are denoted with `KYBER-NOTE!` comment in `ERC20.sol`, `ERC20Basic.sol` and `StandardToken.sol` files.
+### Use of zeppling code
+We use open-zeppling code for `Pauseable` logic only but had to change the OwnerOnly modig=fier to managerOnly for quick pause if anything goes wrong during the sale.
+
 ### SmartToken
 
 First and foremost, a Smart Token is also an ERC-20 compliant token.

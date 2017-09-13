@@ -122,6 +122,18 @@ contract('CrowdsaleController', (accounts) => {
         assert.equal(accunt3Added, false);
     });
 
+    it('should throw when attempting to add account to whitelist by non-manager', async () => {
+        let controller = await initController(accounts, true);
+
+        try {
+            await controller.addToWhitelist(accounts[3], { from: accounts[1] });
+            assert(false, "didn't throw");
+        }
+        catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+
     it('verifies that computeReturn returns the same amount as contributeETH', async () => {
         let controller = await initController(accounts, true);
         let returnAmount = await controller.computeReturn.call(500);

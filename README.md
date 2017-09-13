@@ -21,7 +21,7 @@ Through the use of smart-contracts, Smart Tokens can be created that hold one or
 4. A manager account is also set at the `Managed.sol` constructor as msg.sender, the manager can add addresses to white list by calling the `addToWhitelist` function, and pause/unPause the sale as a safety measure.
 5. Contributors are provided with tokens immediately when executing the presale and the sale.
 6. when sale ends, the token owner should be set to the Rootcore main multisig wallet.
-7. The Ether collected during the sale should be transferred to the foundation multisig wallet. (beneficiary)
+7. The Ether collected during the sale is transferred to the foundation multisig wallet. (beneficiary)
 8. After finalizing the sale (bounty rewards etc.) the token should be set as transferable by the token owner.
 
 During Presale: only white list addresses can contribute.
@@ -124,6 +124,14 @@ Run full project tests:
 * npm run test
 Run CrowdsaleController tests only:
 * npm run test-sale
+
+## Deploying
+to live network:
+* $ truffle migrate --network live
+to test network (kovan):
+* $ truffle migrate --network kovan
+to local test network (testRPC):
+* $ truffle migrate
 
 ## Collaborators
 

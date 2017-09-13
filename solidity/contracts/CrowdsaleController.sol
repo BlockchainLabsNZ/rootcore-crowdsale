@@ -169,7 +169,7 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
     }
 
      /**
-        @dev Contribution during presale (min 200 ether)
+        @dev handles contribution during presale (min 200 ether)
         can only be called 14 days before the crowdsale start date
 
         @return tokens issued in return
@@ -184,6 +184,30 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
         returns (uint256 amount)
     {
         return processContribution();
+    }
+
+     /**
+        @dev handles contribution with Fiat - for 
+        can only be called by manager 
+
+        @return tokens issued in return
+    */
+    function contributeFiat(address _contributor, uint256 _amount)
+        public
+        payable
+        managerOnly
+        between(safeSub(startTime,PRESALE_DURATION), safeAdd(startTime, DURATION))
+        whenNotPaused
+        returns (uint256 amount)
+    {
+        uint256 tokenAmount = computeReturn(_amount);
+    
+        totalEtherContributed = safeAdd(totalEtherContributed, _amount); // update the total contribution amount
+        token.issue(_contributor, tokenAmount); // issue new funds to the contributor's address, provided by the manager, in the smart token
+        token.issue(beneficiary, tokenAmount); // issue tokens to the beneficiary
+
+        Contribution(_contributor, msg.value, tokenAmount);
+        return tokenAmount;
     }
 
     /**

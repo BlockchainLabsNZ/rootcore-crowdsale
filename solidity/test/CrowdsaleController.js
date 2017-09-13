@@ -406,6 +406,77 @@ contract('CrowdsaleController', (accounts) => {
             return utils.ensureException(error);
         }
     });
+
+    it('should throw when attempting to send Fiat contribution by non manager', async () => {
+        let controller = await initController(accounts, true);
+
+        try {
+            await controller.contributeFiat(accounts[3], 500 , { from: accounts[1], value: 0 });
+            assert(false, "didn't throw");
+        }
+        catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+
+    it('should throw when attempting to send Fiat contribution to a non valid address', async () => {
+        let controller = await initController(accounts, true);
+
+        try {
+            await controller.contributeFiat('0x0', 500 );
+            assert(false, "didn't throw");
+        }
+        catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+
+    it('should throw when attempting to send Fiat contribution to a non valid amount', async () => {
+        let controller = await initController(accounts, true);
+
+        try {
+            await controller.contributeFiat(accounts[3], -1 );
+            assert(false, "didn't throw");
+        }
+        catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+
+    it('should throw when attempting to send Fiat contribution when sale is not active', async () => {
+        let controller = await initController(accounts, true, startTimeFinished);
+
+        try {
+            await controller.contributeFiat(accounts[3], -1 );
+            assert(false, "didn't throw");
+        }
+        catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+
+    it('verifies balances and total eth contributed after contributing Fiat', async () => {
+        let controller = await initController(accounts, true);
+
+        let prevEtherBalance = await web3.eth.getBalance(beneficiaryAddress);
+
+        let res = await controller.contributeFiat(accounts[3], 1000 );
+        let purchaseAmount = getContributionAmount(res);
+        assert.isNumber(purchaseAmount);
+        assert.notEqual(purchaseAmount, 0);
+
+        let contributorTokenBalance = await token.balanceOf.call(accounts[3]);
+        assert.equal(contributorTokenBalance, purchaseAmount);
+
+        let beneficiaryTokenBalance = await token.balanceOf.call(beneficiaryAddress);
+        assert.equal(beneficiaryTokenBalance, purchaseAmount);
+
+        let beneficiaryEtherBalance = await web3.eth.getBalance(beneficiaryAddress);
+        assert.equal(beneficiaryEtherBalance.toNumber(), prevEtherBalance.toNumber()); //beneficiary ether balance should remain the same
+
+        let totalEtherContributed = await controller.totalEtherContributed.call();
+        assert.equal(totalEtherContributed, 1000);
+    });
     
     
 });

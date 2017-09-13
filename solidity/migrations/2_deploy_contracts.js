@@ -24,3 +24,12 @@ module.exports = async (deployer) => {
     await deployer.deploy(CrowdsaleController, 4102444800, '0x125');
 };
 
+
+/************************************************
+TODO:
+1 - add network object to deployments
+2 - create a full deployment for testRPC and unit tests (this is what we have now)
+3 - create a dedicated testnet and main net deployments which will only deploy the crowdsale with relevant args.
+4 - decide if we will use truffle for the production deploment.
+*************************************************/  
+

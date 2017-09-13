@@ -7,9 +7,13 @@ All Bancor smart contracts, except the CrowdSaleController, are unchanged but so
 Zeppelin Solidity Pausable contract was added and the Owned inheritance was replaced by Managed.
 
 ## Overview
-The Bancor protocol represents the first technological solution for the classic problem in economics known as the “Double Coincidence of Wants”, in the domain of asset exchange. For barter, the coincidence of wants problem was solved through money. For money, exchanges still rely on labor, via bid/ask orders and trade between external agents, to make markets and supply liquidity.
-
-Through the use of smart-contracts, Smart Tokens can be created that hold one or more other tokens in their reserve. Tokens may represent existing national currencies or other types of assets. By using a reserve token model and algorithmically-calculated conversion rates, the Bancor Protocol creates a new type of ecosystem for asset exchange, with no central control. This decentralized hierarchical monetary system lays the foundation for an autonomous decentralized global exchange with numerous and substantial advantages.
+Rootcore Crowdsale allowes contributing Ether in return for Rootcoin tokens.
+The tokens are ERC20 standard.
+Prticipating in the sale is open to everybody with a max contribution cap. Contributing more than the account cap requires going through a KYC process. At the end of the process the account is added to the whitelist and the max cap is removed.
+Participating in the pre sale requires requires going through a KYC process. At the end of the process the account is added to the whitelist. During pre sale, there's no account max cap.
+During the sale period, the tokens are non transferable.
+At the end of the sale, the token owner should set as the baneficiary (foundation) account.  
+After the end of the sale, Rootcore will deploy a Changer contract based on the BancorChanger which will hold a reserve in BNT.  
 
 
 ## Detailed description
@@ -20,7 +24,7 @@ Through the use of smart-contracts, Smart Tokens can be created that hold one or
 3. Beneficiary address is also set on the constructor args. It should be a multi Sig wallet contract address.
 4. A manager account is also set at the `Managed.sol` constructor as msg.sender, the manager can add addresses to white list by calling the `addToWhitelist` function, and pause/unPause the sale as a safety measure.
 5. Contributors are provided with tokens immediately when executing the presale and the sale.
-6. when sale ends, the token owner should be set to the Rootcore main multisig wallet.
+6. when sale ends, the token owner should be set to the Bancor changer smart contract that will be deployed.
 7. The Ether collected during the sale is transferred to the foundation multisig wallet. (beneficiary)
 8. After finalizing the sale (bounty rewards etc.) the token should be set as transferable by the token owner.
 

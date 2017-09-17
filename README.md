@@ -19,19 +19,20 @@ After the end of the sale, Rootcore will deploy a Changer contract based on the 
 ## Detailed description
 
 ### Overview of flow
-1. Deploy: The start time of the sale is set on the constructor. Presale starts PRESALE_DURATION (days) before that.
-2. The crowdsaleController deploys a SmartToken to be used by it. Token owner is set as to be the `CrowdsaleController.sol` deployed contract and transfer of tokens is disabled.
-3. Beneficiary address is also set on the constructor args. It should be a multi Sig wallet contract address.
+1. Deploy: The start time of the sale is set on the constructor. Presale starts PRESALE_DURATION (set to 14 in code) (days) before that.
+2. The crowdsaleController deploys a SmartToken to be used by it. Token owner is set as to be the the crowdsale contract itself (creator). Transfer of tokens is disabled on the constructor.
+3. Beneficiary address is also set on the constructor. It should be a multi Sig wallet contract address.
 4. A manager account is also set at the `Managed.sol` constructor as msg.sender, the manager can add addresses to white list by calling the `addToWhitelist` function, and pause/unPause the sale as a safety measure.
-5. Contributors are provided with tokens immediately when executing the presale and the sale.
+5. Contributors are provided with tokens immediately when executing the presale and the sale functions.
 6. when sale ends, the token owner should be set to the Bancor changer smart contract that will be deployed.
 7. The Ether collected during the sale is transferred to the foundation multisig wallet. (beneficiary)
-8. After finalizing the sale (bounty rewards etc.) the token should be set as transferable by the token owner.
+8. The Tokens issued during the sale are transferred to the foundation multisig wallet. (beneficiary)
+9. After finalizing the sale (bounty rewards etc.) the token should be set as transferable by the token owner.
 
 During Presale: only white list addresses can contribute.
 During sale, whitelist accounts are allowed to transfer more than MAX_CONTRIBUTION
+Any contributor who whishes to either participate in pre-sale, or contibute more than MAX_CONTRIBUTION should go through a KYC process in which they should provide their address to be added to the whitelist.
 
-TODO: Pass token args to the CrowdSaleController constructor and not as constants.?
 
 ### Use of Bancor Protocol Contracts v0.3 (alpha)
 We use Bancor Protocol code for the most part of this project.
@@ -39,6 +40,8 @@ The only contract we changed is the `CrowdsaleController.sol` itself which was c
 1 - support a Presale for white list accounts only.
 2 - Support max contribution cap per account.
 3 - Deploy the start token on creation.
+4 - Addition of whitelist for MAX_CONTRIBUTION and pre sale address verification.
+5 - addition of `Pauseable.sol` for safety during sale.
 
 ### Use of zeppling code
 We use open-zeppling code for `Pauseable` logic only but had to change the OwnerOnly modifier to managerOnly for quick pause if anything goes wrong during the sale.
@@ -50,7 +53,7 @@ The `CrowdsaleController.sol` contract is the main contract of this project. It 
 Whith any legit contribution, the calculated amount of tokens are immediately assignes the sender (token `issue` function is called). The same amount (1:1 ratio) is assigned to the beneficiary account. 
 Ether collected during the sale is stored at the ether balance of the CrowdsaleController contract and should be sent to the foundation multisig wallet when sale is over.
 
-TODO: add finalize sale function that 1 - transfers ether to beneficiary, 2 - enables token transfers, 3 - transfer Token ownership to the foundation.
+TODO???: add finalize sale function that will transfer Token ownership to the Bancor Changer once it's up.
 
 ### SmartToken
 

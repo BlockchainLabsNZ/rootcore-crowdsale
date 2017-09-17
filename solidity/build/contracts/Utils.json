@@ -8,14 +8,7 @@
     }
   ],
   "unlinked_binary": "0x60606040523415600e57600080fd5b5b5b5b603680601e6000396000f30060606040525b600080fd00a165627a7a72305820bcd0a18c83d12215e4c0466d8bf5a9972b66bfb1991f8565d132e623350b57ad0029",
-  "networks": {
-    "666": {
-      "events": {},
-      "links": {},
-      "address": "0xdfaf018d2497e717c7217862f6da773cc79f06e8",
-      "updated_at": 1505316878177
-    }
-  },
+  "networks": {},
   "schema_version": "0.0.5",
-  "updated_at": 1505316878177
+  "updated_at": 1505667810539
 }

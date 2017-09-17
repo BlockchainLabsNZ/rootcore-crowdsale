@@ -23,7 +23,7 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
     uint256 public constant MIN_CONTRIBUTION = 0.01 ether;      // general sale min contribution
     uint256 public constant DURATION = 14 days;                 // crowdsale duration
     uint256 public constant TOKEN_PRICE_N = 1;                  // initial price in wei (numerator)
-    uint256 public constant TOKEN_PRICE_D = 1000;                // initial price in wei (denominator)
+    uint256 public constant TOKEN_PRICE_D = 1000;                // initial price in wei (denominator) (1 wei equals 1000 token "wei")
     uint256 public constant MAX_GAS_PRICE = 50000000000 wei;    // maximum gas price for contribution transactions
     uint256 public constant MAX_CONTRIBUTION = 40 ether;    // maximum ether allowed to contribute by an unauthorized single account
 

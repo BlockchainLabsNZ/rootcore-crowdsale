@@ -19,13 +19,13 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
     string public version = "0.1";
 
     uint256 public constant PRESALE_DURATION = 14 days;                 // pressale duration
-    uint256 public constant PRESALE_MIN_CONTRIBUTION = 200 wei;// 200 ether;     // pressale min contribution
-    uint256 public constant MIN_CONTRIBUTION = 100 wei;//0.01 ether;      // general sale min contribution
+    uint256 public constant PRESALE_MIN_CONTRIBUTION = 200 ether;     // pressale min contribution
+    uint256 public constant MIN_CONTRIBUTION = 0.01 ether;      // general sale min contribution
     uint256 public constant DURATION = 14 days;                 // crowdsale duration
     uint256 public constant TOKEN_PRICE_N = 1;                  // initial price in wei (numerator)
-    uint256 public constant TOKEN_PRICE_D = 0.001 ether;                // initial price in wei (denominator)
+    uint256 public constant TOKEN_PRICE_D = 1000;                // initial price in wei (denominator)
     uint256 public constant MAX_GAS_PRICE = 50000000000 wei;    // maximum gas price for contribution transactions
-    uint256 public constant MAX_CONTRIBUTION = 1000 wei;//40 ether;    // maximum ether allowed to contribute by an unauthorized single account
+    uint256 public constant MAX_CONTRIBUTION = 40 ether;    // maximum ether allowed to contribute by an unauthorized single account
 
     string public constant TOKEN_NAME = "Rootcoin"; //Token name
     string public constant TOKEN_SYM = "RCT";       //Token symbol
@@ -115,7 +115,8 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
         @return computed number of tokens
     */
     function computeReturn(uint256 _contribution) public constant returns (uint256) {
-        return safeMul(_contribution, TOKEN_PRICE_D) / TOKEN_PRICE_N;
+        // return safeMul(_contribution, TOKEN_PRICE_D) / TOKEN_PRICE_N;
+        return safeMul(_contribution, TOKEN_PRICE_D);
     }
 
     /**

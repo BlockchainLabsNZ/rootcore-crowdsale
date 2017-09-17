@@ -36,6 +36,9 @@ async function initController(accounts, activate, startTimeOverride = startTimeI
         token = SmartToken.at(await controller.token.call());
         tokenAddress = token.address;
 
+        // let realStartTime = await controller.startTime.call();
+        // console.log("startTime: = " + realStartTime);
+
         await controller.addToWhitelist(accounts[4]); //put account[4] in whitelist
         await controller.addToWhitelist(accounts[0]); //put account[0] in whitelist
     }

@@ -8,37 +8,41 @@ import './interfaces/ISmartToken.sol';
 
 
 /*
-    Crowdsale v0.1
 
-    The crowdsale version of the smart token controller, allows contributing ether in exchange for Rootcoin tokens
+    The CrowdsaleController allows contributing ether in exchange for Rootcoin tokens
     The price remains fixed for the entire duration of the crowdsale
-    Note that 20% of the contributions are for the Bancor token's reserve
     Presale contributes are allocated (manually) with additional 20% tokens from the beneficiary tokens.
+    Presale contribute mst use pre-verified addresses. (KYC)
 */
 contract CrowdsaleController is SmartTokenController, Managed, Pausable {
-    string public version = "0.1";
 
-    uint256 public constant PRESALE_DURATION = 14 days;                 // pressale duration
-    uint256 public constant PRESALE_MIN_CONTRIBUTION = 200 ether;     // pressale min contribution
+    
+
     uint256 public constant MIN_CONTRIBUTION = 0.01 ether;      // general sale min contribution
-    uint256 public constant DURATION = 14 days;                 // crowdsale duration
-    uint256 public constant SOFTCAP_GRACE_DURATION = 10; //86400;    // crowdsale softcap reached grace duration in seconds (10 seconds for tests)
+    uint256 public constant DURATION = 14 days;                 // crowdsale duration  
     uint256 public constant TOKEN_PRICE_N = 1;                  // initial price in wei (numerator)
-    uint256 public constant TOKEN_PRICE_D = 1000;                // initial price in wei (denominator) (1000 wei equals 1 token)
+    uint256 public constant TOKEN_PRICE_D = 1000;               // initial price in wei (denominator) (1000 wei equals 1 token)
     uint256 public constant MAX_GAS_PRICE = 50000000000 wei;    // maximum gas price for contribution transactions
-    uint256 public constant MAX_CONTRIBUTION = 40 ether;    // maximum ether allowed to contribute by an unauthorized single account
-    uint256 public TOTAL_ETHER_CAP = 1000000 ether;   // overall ether contribution cap
-    uint256 public TOTAL_ETHER_SOFT_CAP = 500000 ether;   // overall ether contribution soft cap
-
+    uint256 public constant MAX_CONTRIBUTION = 40 ether;        // maximum ether allowed to contribute by an unauthorized single account
+    uint256 public constant SOFTCAP_GRACE_DURATION = 86400;     // crowdsale softcap reached grace duration in seconds (10 seconds for tests)
+    uint256 public TOTAL_ETHER_CAP = 1000000 ether;             // overall ether contribution cap
+    uint256 public TOTAL_ETHER_SOFT_CAP = 500000 ether;         // overall ether contribution soft cap
+    
+    //Presale constants
+    uint256 public constant PRESALE_DURATION = 14 days;               // pressale duration
+    uint256 public constant PRESALE_MIN_CONTRIBUTION = 200 ether;     // pressale min contribution
+    
+    //Token constants
     string public constant TOKEN_NAME = "Rootcoin"; //Token name
     string public constant TOKEN_SYM = "RCT";       //Token symbol
     uint8 public constant TOKEN_DEC = 18;           //Token decimals
+    
+    
+    //State variables
     uint256 public startTime = 0;                   // crowdsale start time (in seconds)
     uint256 public endTime = 0;                     // crowdsale end time (in seconds)
-    // uint256 public totalEtherSoftCapReached = 0;    // the time that the fost cap was reached set to 0 until reached
     uint256 public totalEtherContributed = 0;       // ether contributed so far
     address public beneficiary = 0x0;               // address to receive all ether contributions
-
     mapping(address => bool) public whiteList;  //whitelist of accounts that can participate in presale and also contribute more than MAX_CONTRIBUTION
      
 
@@ -79,17 +83,17 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
         _;
     }
 
-    // ensures that we didn't reach the ether cap
-    modifier etherCapNotReached(uint256 _contribution) {
-        assert(safeAdd(totalEtherContributed, _contribution) <= TOTAL_ETHER_CAP);
-        _;
-    }
-
-    // ensures that we didn't reach the soft ether cap, and sets the ent time time if we do
+    // ensures that we didn't reach the soft ether cap, and sets the end time time when we do. Must be placed before the etherCapNotReached.
     modifier etherSoftCapNotReached(uint256 _contribution) {
         if (safeAdd(totalEtherContributed, _contribution) >= TOTAL_ETHER_SOFT_CAP) {
             endTime = now + SOFTCAP_GRACE_DURATION;
         }
+        _;
+    }
+
+    // ensures that we didn't reach the ether cap
+    modifier etherCapNotReached(uint256 _contribution) {
+        assert(safeAdd(totalEtherContributed, _contribution) <= TOTAL_ETHER_CAP);
         _;
     }
 
@@ -229,8 +233,8 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
     */
     function processContribution() private
         active
-        etherCapNotReached(msg.value)
         etherSoftCapNotReached(msg.value)
+        etherCapNotReached(msg.value)
         validGasPrice
         returns (uint256 amount)
     {

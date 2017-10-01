@@ -24,7 +24,7 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
     uint256 public constant TOKEN_PRICE_D = 1000;               // initial price in wei (denominator) (1000 wei equals 1 token)
     uint256 public constant MAX_GAS_PRICE = 50000000000 wei;    // maximum gas price for contribution transactions
     uint256 public constant MAX_CONTRIBUTION = 40 ether;        // maximum ether allowed to contribute by an unauthorized single account
-    uint256 public constant SOFTCAP_GRACE_DURATION = 86400;     // crowdsale softcap reached grace duration in seconds (10 seconds for tests)
+    uint256 public constant SOFTCAP_GRACE_DURATION = 86400;     // crowdsale softcap reached grace duration in seconds (24 hours) (use 8 seconds for tests)
     uint256 public TOTAL_ETHER_CAP = 1000000 ether;             // overall ether contribution cap
     uint256 public TOTAL_ETHER_SOFT_CAP = 500000 ether;         // overall ether contribution soft cap
     

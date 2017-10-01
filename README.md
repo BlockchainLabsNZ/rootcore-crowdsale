@@ -28,6 +28,8 @@ After the end of the sale, Rootcore will deploy a Changer contract based on the 
 7. The Ether collected during the sale is transferred to the foundation multisig wallet. (beneficiary)
 8. The Tokens issued during the sale are transferred to the foundation multisig wallet. (beneficiary)
 9. After finalizing the sale (bounty rewards etc.) the token should be set as transferable by the token owner.
+10. A soft cap is utilized in the following manner: if reached (during pre or public sale) a 24 hours grace duration is set after which the sale ends.
+11. A hard cap is utilized  in the following manner: if reached, at any point, the sale ends.
 
 During Presale: only white list addresses can contribute.
 During sale, whitelist accounts are allowed to transfer more than MAX_CONTRIBUTION

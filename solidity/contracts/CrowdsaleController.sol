@@ -143,7 +143,7 @@ contract CrowdsaleController is SmartTokenController, Managed, Pausable {
     }
 
     /**
-        @dev removes a whitelist address for which there is no max contribution and is alloewed to participate in the presale.
+        @dev disables an existing whitelist address from participating presale.
 
         @param _address    verified contributor address to be removed
 

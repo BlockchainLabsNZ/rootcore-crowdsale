@@ -106,7 +106,16 @@ This is the public payable method for allocating tokens for Fiat contributions. 
 <br>
 <br>
 <br>
+### Events
 
+**NewSmartToken**
+```cs
+event Contribution(address indexed _contributor, uint256 _amount, uint256 _return)
+```
+Triggered when a contribution is processed.
+<br>
+<br>
+<br>
 
 
 ## SmartToken

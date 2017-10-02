@@ -17,12 +17,6 @@ let startTimeFinished = Math.floor(Date.now() / 1000) - 30 * 24 * 60 * 60; // Fi
 
 var sleep = require('sleep');
 
-
-let realCap = 1000;
-//2000000000000000000000000
-let realCapLarge = 1000000000000000000000001;
-let realSoftCapLarge = 500000000000000000000001;
-
 let badContributionGasPrice = 50000000001;
 //let presaleMinContribution = 200;
 let moreThanMaxContribution = 41000000000000000000;
@@ -109,7 +103,7 @@ contract('CrowdsaleController', (accounts) => {
         assert.equal(account0isInWhiteList && account4isInWhiteList, true);
     });
 
-    it('verifies that 0.001 ether equals 1000 tokens', async () => {
+    it('verifies that 1 ether equals 1000 tokens', async () => {
         let controller = await initController(accounts, true);
         let returnAmount = await controller.computeReturn.call(1000000000000000000);
         assert.isNumber(returnAmount.toNumber());
@@ -365,18 +359,6 @@ contract('CrowdsaleController', (accounts) => {
         }
     });
 
-    it('should throw when attempting to contributing with too small amount', async () => {
-        let controller = await initController(accounts, true, startTimeInProgress);
-
-        try {
-            await controller.sendTransaction({ value: 9000000000000000 });
-
-            assert(false, "didn't throw");
-        }
-        catch (error) {
-            return utils.ensureException(error);
-        }
-    });
     it('should throw when attempting to contributing with too large amount', async () => {
         let controller = await initController(accounts, true, startTimeInProgress);
 

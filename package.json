@@ -21,7 +21,9 @@
     "solc-compile": "cd solidity && solc --version"
   },
   "dependencies": {
+    "bignumber.js": "^4.1.0",
     "ethereumjs-testrpc": "^4.1.1",
+    "sleep": "^5.1.1",
     "solc": "^0.4.16",
     "truffle": "^3.4.9"
   }

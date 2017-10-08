@@ -5,6 +5,7 @@ const CrowdsaleController = artifacts.require('CrowdsaleController.sol');
 const SmartToken = artifacts.require('SmartToken.sol');
 const TestCrowdsaleController = artifacts.require('TestCrowdsaleController.sol');
 const utils = require('./helpers/Utils');
+var BigNumber = require('bignumber.js');
 
 let token;
 let tokenAddress;
@@ -14,9 +15,16 @@ let startTime = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60; // crowdsale 
 let startTimePresaleInProgress = Math.floor(Date.now() / 1000) + 10 * 24 * 60 * 60; // ongoing crowdsale in presale
 let startTimeInProgress = Math.floor(Date.now() / 1000) - 12 * 60 * 60; // ongoing crowdsale
 let startTimeFinished = Math.floor(Date.now() / 1000) - 30 * 24 * 60 * 60; // Finished crowdsale
-let realCap = 1000;
-let realCapLarge = 1000000000000000000000000000000000000;
-// let realCapKey = 234;
+
+var softCap = 0;
+var hardCap = 0;
+var capsDelta = 0;
+var validContribution = 1000000000000000000; //valid amount for any type of account
+var maxAccountContribution = 0; //maximum amount that a single unautorized (not in white list) account can send
+var minPresaleContribution = 0; //min amount in pre sale
+
+var sleep = require('sleep');
+
 let badContributionGasPrice = 50000000001;
 //let presaleMinContribution = 200;
 let moreThanMaxContribution = 41000000000000000000;
@@ -35,9 +43,16 @@ async function initController(accounts, activate, startTimeOverride = startTimeI
         
         token = SmartToken.at(await controller.token.call());
         tokenAddress = token.address;
-
-        // let realStartTime = await controller.startTime.call();
-        // console.log("startTime: = " + realStartTime);
+        let x = await controller.TOTAL_ETHER_SOFT_CAP.call();
+        softCap = x.toNumber();
+        let y = await controller.TOTAL_ETHER_CAP.call();
+        hardCap = y.toNumber();
+        let z = await controller.MAX_CONTRIBUTION.call();
+        maxAccountContribution = z.toNumber();
+        let a = await controller.PRESALE_MIN_CONTRIBUTION.call();
+        minPresaleContribution = a.toNumber();
+                
+        capsDelta = hardCap - softCap;
 
         await controller.addToWhitelist(accounts[4]); //put account[4] in whitelist
         await controller.addToWhitelist(accounts[0]); //put account[0] in whitelist
@@ -91,7 +106,7 @@ contract('CrowdsaleController', (accounts) => {
 
     it('verifies that computeReturn returns a valid amount', async () => {
         let controller = await initController(accounts, true);
-        let returnAmount = await controller.computeReturn.call(100000000000000000);
+        let returnAmount = await controller.computeReturn.call(validContribution);
         assert.isNumber(returnAmount.toNumber());
         assert.notEqual(returnAmount.toNumber(), 0);
     });
@@ -103,12 +118,12 @@ contract('CrowdsaleController', (accounts) => {
         assert.equal(account0isInWhiteList && account4isInWhiteList, true);
     });
 
-    it('verifies that 0.001 ether equals 1000 tokens', async () => {
+    it('verifies that 1 ether equals 1000 tokens', async () => {
         let controller = await initController(accounts, true);
-        let returnAmount = await controller.computeReturn.call(1000000000000000000);
+        let returnAmount = await controller.computeReturn.call(validContribution);
         assert.isNumber(returnAmount.toNumber());
         assert.notEqual(returnAmount.toNumber(), 0);
-        assert.equal(returnAmount.toNumber(), 1000000000000000000000);
+        assert.equal(returnAmount.toNumber(), validContribution*1000);
     });
 
     it('verifies that account3 can be added to whitelist', async () => {
@@ -139,9 +154,9 @@ contract('CrowdsaleController', (accounts) => {
 
     it('verifies that computeReturn returns the same amount as contributeETH', async () => {
         let controller = await initController(accounts, true);
-        let returnAmount = await controller.computeReturn.call(1000000000000000000);
+        let returnAmount = await controller.computeReturn.call(validContribution);
 
-        let purchaseRes = await controller.contributeETH({ value: 1000000000000000000 });
+        let purchaseRes = await controller.contributeETH({ value: validContribution });
         let purchaseAmount = getContributionAmount(purchaseRes);
 
         assert.equal(returnAmount, purchaseAmount);
@@ -149,9 +164,9 @@ contract('CrowdsaleController', (accounts) => {
 
     it('verifies that computeReturn returns the same amount as contributePreSale', async () => {
         let controller = await initController(accounts, true, startTimePresaleInProgress);
-        let returnAmount = await controller.computeReturn.call(201000000000000000000);
+        let returnAmount = await controller.computeReturn.call(minPresaleContribution);
 
-        let purchaseRes = await controller.contributePreSale({ value: 201000000000000000000 });
+        let purchaseRes = await controller.contributePreSale({ value: minPresaleContribution, from: presaleContributorAddress });
         let purchaseAmount = getContributionAmount(purchaseRes);
 
         assert.equal(returnAmount, purchaseAmount);
@@ -164,7 +179,7 @@ contract('CrowdsaleController', (accounts) => {
 
         let prevEtherBalance = await web3.eth.getBalance(beneficiaryAddress);
 
-        let res = await controller.contributeETH({ value: 1000000000000000000, from: accounts[1] });
+        let res = await controller.contributeETH({ value: validContribution, from: accounts[1] });
         let purchaseAmount = getContributionAmount(res);
         assert.isNumber(purchaseAmount);
         assert.notEqual(purchaseAmount, 0);
@@ -176,10 +191,35 @@ contract('CrowdsaleController', (accounts) => {
         assert.equal(beneficiaryTokenBalance, purchaseAmount);
 
         let beneficiaryEtherBalance = await web3.eth.getBalance(beneficiaryAddress);
-        assert.equal(beneficiaryEtherBalance.toNumber(), prevEtherBalance.plus(1000000000000000000).toNumber());
+        assert.equal(beneficiaryEtherBalance.toNumber(), prevEtherBalance.plus(validContribution).toNumber());
 
         let totalEtherContributed = await controller.totalEtherContributed.call();
-        assert.equal(totalEtherContributed, 1000000000000000000);
+        assert.equal(totalEtherContributed, validContribution);
+    });
+
+    it('verifies number of contributors after multiple contributions', async () => {
+        var currentNumOfContributors = 0;
+        let controller = await initController(accounts, true);
+        let res = await controller.numOfContributors.call();
+        var initialNumOfContributors = res.toNumber()
+        assert.isNumber(initialNumOfContributors);
+        assert.equal(initialNumOfContributors, 0); //verify that there are no contributors when initilized
+
+        await controller.contributeETH({ value: validContribution, from: accounts[1] }); //make 1st contribution by account 1
+        res = await controller.numOfContributors.call();
+        currentNumOfContributors = res.toNumber()
+        assert.equal(currentNumOfContributors, 1); //verifies that there is just one contributor
+        
+        await controller.contributeETH({ value: validContribution, from: accounts[2] }); //make 1st contribution by account 2
+        res = await controller.numOfContributors.call();
+        currentNumOfContributors = res.toNumber()
+        assert.equal(currentNumOfContributors, 2); //verifies that there are now two contributors
+
+        await controller.contributeETH({ value: validContribution, from: accounts[1] }); //make 2nd contribution by account 1
+        res = await controller.numOfContributors.call();
+        currentNumOfContributors = res.toNumber()
+        assert.equal(currentNumOfContributors, 2); //verifies that there are still two contributors
+        
     });
 
     it('verifies that whitelist account can contribute more than maximum account limit', async () => {
@@ -201,7 +241,7 @@ contract('CrowdsaleController', (accounts) => {
         let controller = await initController(accounts, true, startTime);
 
         try {
-            await controller.contributeETH({ value: 1000000000000000000 });
+            await controller.contributeETH({ value: validContribution });
             assert(false, "didn't throw");
         }
         catch (error) {
@@ -213,7 +253,7 @@ contract('CrowdsaleController', (accounts) => {
         let controller = await initController(accounts, true, startTime);
 
         try {
-            await controller.contributePreSale({ value: 1000000000000000000 });
+            await controller.contributePreSale({ value: minPresaleContribution });
             assert(false, "didn't throw");
         }
         catch (error) {
@@ -290,7 +330,7 @@ contract('CrowdsaleController', (accounts) => {
         let controller = await initController(accounts, false, startTime);
 
         try {
-            await controller.contributePreSale({ value: 201000000000000000000 });
+            await controller.contributePreSale({ value: minPresaleContribution , from: presaleContributorAddress});
             assert(false, "didn't throw");
         }
         catch (error) {
@@ -302,7 +342,7 @@ contract('CrowdsaleController', (accounts) => {
         let controller = await initController(accounts, true);
 
         try {
-            await controller.contributePreSale({ value: 201000000000000000000 });
+            await controller.contributePreSale({ value: minPresaleContribution , from: presaleContributorAddress });
             assert(false, "didn't throw");
         }
         catch (error) {
@@ -314,7 +354,7 @@ contract('CrowdsaleController', (accounts) => {
         let controller = await initController(accounts, true, startTimeFinished);
 
         try {
-            await controller.contributePreSale({ value: 201000000000000000000});
+            await controller.contributePreSale({ value: minPresaleContribution , from: presaleContributorAddress});
             assert(false, "didn't throw");
         }
         catch (error) {
@@ -326,7 +366,7 @@ contract('CrowdsaleController', (accounts) => {
         let controller = await initController(accounts, true, startTimePresaleInProgress);
 
         try {
-            await controller.contributePreSale({ value: 201000000000000000000, gasPrice: badContributionGasPrice });
+            await controller.contributePreSale({ value: minPresaleContribution , from: presaleContributorAddress, gasPrice: badContributionGasPrice });
             assert(false, "didn't throw");
         }
         catch (error) {
@@ -338,7 +378,7 @@ contract('CrowdsaleController', (accounts) => {
         let controller = await initController(accounts, true, startTimePresaleInProgress);
 
         try {
-            await controller.contributePreSale({ value: 201000000000000000000, from: accounts[1]});
+            await controller.contributePreSale({ value: minPresaleContribution, from: accounts[1]});
             assert(false, "didn't throw");
         }
         catch (error) {
@@ -348,9 +388,10 @@ contract('CrowdsaleController', (accounts) => {
 
     it('should throw when attempting to contributing through presale with small amount', async () => {
         let controller = await initController(accounts, true, startTimePresaleInProgress);
-
+        var lessThenMinContribution = new BigNumber(minPresaleContribution);
+        lessThenMinContribution = lessThenMinContribution.minus(100);
         try {
-            await controller.contributePreSale({ value: 190000000000000000000 });
+            await controller.contributePreSale({ value: lessThenMinContribution.toString(), from: presaleContributorAddress });
 
             assert(false, "didn't throw");
         }
@@ -359,37 +400,100 @@ contract('CrowdsaleController', (accounts) => {
         }
     });
 
-    it('should throw when attempting to contributing with too small amount', async () => {
-        let controller = await initController(accounts, true, startTimeInProgress);
-
-        try {
-            await controller.sendTransaction({ value: 9000000000000000 });
-
-            assert(false, "didn't throw");
-        }
-        catch (error) {
-            return utils.ensureException(error);
-        }
-    });
     it('should throw when attempting to contributing with too large amount', async () => {
         let controller = await initController(accounts, true, startTimeInProgress);
-
+        var moreThanMaxAccountContribution = new BigNumber(maxAccountContribution);
+        moreThanMaxAccountContribution = moreThanMaxAccountContribution.plus(100);
         try {
-            await controller.sendTransaction({ value: 41000000000000000000, from: accounts[1] });
+            await controller.sendTransaction({ value: moreThanMaxAccountContribution.toString(), from: accounts[1] });
 
             assert(false, "didn't throw");
         }
         catch (error) {
             return utils.ensureException(error);
         }
+    });
+
+    it('should throw when attempting to contribue with amount over the total cap by an approved account (no account limit)', async () => {
+        let controller = await initController(accounts, true, startTimeInProgress);
+        var moreThanHardCap = new BigNumber(hardCap);
+        moreThanHardCap = moreThanHardCap.plus(100);
+
+        try {
+            await controller.sendTransaction({ value: moreThanHardCap.toString(), from: accounts[4] });
+
+            assert(false, "didn't throw");
+        }
+        catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+
+    it('should throw when soft cap reached and trying to contribute with amount that would pass hard cap by an approved account (no account limit)', async () => {
+        let controller = await initController(accounts, true, startTimeInProgress);
+        
+        var moreThanSoftCap = new BigNumber(softCap);
+        moreThanSoftCap = moreThanSoftCap.plus(100);
+        
+        await controller.sendTransaction({ value: moreThanSoftCap.toString(), from: accounts[4] }); //should pass
+        
+        try {
+            
+            await controller.sendTransaction({ value: capsDelta, from: accounts[4] });//should not pass
+
+            assert(false, "didn't throw");
+        }
+        catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+
+    it('should throw when soft cap reached and trying to contribute after grace period)', async () => {
+        let controller = await initController(accounts, true, startTimeInProgress);
+        var moreThanSoftCap = new BigNumber(softCap);
+        moreThanSoftCap = moreThanSoftCap.plus(100);
+        await controller.sendTransaction({ value: moreThanSoftCap.toString(), from: accounts[4] }); //should pass
+
+        try {
+            sleep.sleep(10);
+            await controller.sendTransaction({ value: validContribution, from: accounts[4] });//should not pass
+
+            assert(false, "didn't throw");
+        }
+        catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+
+    it('verifies balances and total eth contributed after soft cap was reached but in "grace" period', async () => {
+        let controller = await initController(accounts, true);
+        await controller.sendTransaction({ value: softCap, from: accounts[4] });
+
+        let prevEtherBalance = await web3.eth.getBalance(beneficiaryAddress);
+        let prevBeneficiaryTokenBalance = await token.balanceOf.call(beneficiaryAddress);
+
+        let res = await controller.sendTransaction({ value: validContribution, from: accounts[3]});
+        let purchaseAmount = getContributionAmount(res);
+        assert.isNumber(purchaseAmount);
+        assert.notEqual(purchaseAmount, 0);
+
+        let contributorTokenBalance = await token.balanceOf.call(accounts[3]);
+        assert.equal(contributorTokenBalance, purchaseAmount);
+
+        let firstContributorTokenBalance = await token.balanceOf.call(accounts[4]);
+        let secondContributorTokenBalance = await token.balanceOf.call(accounts[3]);
+        let beneficiaryTokenBalance = await token.balanceOf.call(beneficiaryAddress);
+        
+        assert.equal(beneficiaryTokenBalance.toNumber(), firstContributorTokenBalance.plus(secondContributorTokenBalance.toNumber()).toNumber());
+
     });
 
     it('should throw when attempting to contributing with too large amount in two seperate transfers', async () => {
         let controller = await initController(accounts, true, startTimeInProgress);
 
         try {
-            await controller.sendTransaction({ value: 20000000000000000000, from: accounts[1] });
-            await controller.sendTransaction({ value: 21000000000000000000, from: accounts[1] });
+            await controller.sendTransaction({ value: maxAccountContribution, from: accounts[1] });
+            await controller.sendTransaction({ value: validContribution, from: accounts[1] });
 
             assert(false, "didn't throw");
         }
@@ -402,7 +506,7 @@ contract('CrowdsaleController', (accounts) => {
         let controller = await initController(accounts, true);
 
         try {
-            await controller.contributeFiat(accounts[3], 10000000000000000000 , { from: accounts[1], value: 0 });
+            await controller.contributeFiat(accounts[3], validContribution , { from: accounts[1], value: 0 });
             assert(false, "didn't throw");
         }
         catch (error) {
@@ -414,7 +518,7 @@ contract('CrowdsaleController', (accounts) => {
         let controller = await initController(accounts, true);
 
         try {
-            await controller.contributeFiat('0x0', 10000000000000000000 );
+            await controller.contributeFiat('0x0', validContribution );
             assert(false, "didn't throw");
         }
         catch (error) {
@@ -438,7 +542,7 @@ contract('CrowdsaleController', (accounts) => {
         let controller = await initController(accounts, true, startTimeFinished);
 
         try {
-            await controller.contributeFiat(accounts[3], 10000000000000000000 );
+            await controller.contributeFiat(accounts[3], validContribution );
             assert(false, "didn't throw");
         }
         catch (error) {
@@ -451,7 +555,7 @@ contract('CrowdsaleController', (accounts) => {
 
         let prevEtherBalance = await web3.eth.getBalance(beneficiaryAddress);
 
-        let res = await controller.contributeFiat(accounts[3], 10000000000000000000 );
+        let res = await controller.contributeFiat(accounts[3], validContribution );
         let purchaseAmount = getContributionAmount(res);
         assert.isNumber(purchaseAmount);
         assert.notEqual(purchaseAmount, 0);
@@ -466,9 +570,8 @@ contract('CrowdsaleController', (accounts) => {
         assert.equal(beneficiaryEtherBalance.toNumber(), prevEtherBalance.toNumber()); //beneficiary ether balance should remain the same
 
         let totalEtherContributed = await controller.totalEtherContributed.call();
-        assert.equal(totalEtherContributed, 10000000000000000000);
+        assert.equal(totalEtherContributed, validContribution);
     });
-    
     
 });
 

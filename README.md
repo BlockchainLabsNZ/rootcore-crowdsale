@@ -28,6 +28,8 @@ After the end of the sale, Rootcore will deploy a Changer contract based on the 
 7. The Ether collected during the sale is transferred to the foundation multisig wallet. (beneficiary)
 8. The Tokens issued during the sale are transferred to the foundation multisig wallet. (beneficiary)
 9. After finalizing the sale (bounty rewards etc.) the token should be set as transferable by the token owner.
+10. A soft cap is utilized in the following manner: if reached (during pre or public sale) a 24 hours grace duration is set after which the sale ends.
+11. A hard cap is utilized  in the following manner: if reached, at any point, the sale ends.
 
 During Presale: only white list addresses can contribute.
 During sale, whitelist accounts are allowed to transfer more than MAX_CONTRIBUTION
@@ -41,21 +43,82 @@ The only contract we changed is the `CrowdsaleController.sol` itself which was c
 2 - Support max contribution cap per account.
 3 - Deploy the start token on creation.
 4 - Addition of whitelist for MAX_CONTRIBUTION and pre sale address verification.
-5 - addition of `Pauseable.sol` for safety during sale.
+5 - Addition of `Pauseable.sol` for safety during sale.
 
 ### Use of zeppling code
 We use open-zeppling code for `Pauseable` logic only but had to change the OwnerOnly modifier to managerOnly for quick pause if anything goes wrong during the sale.
 
-### Per module description
+# Per module description
 
-### CrowdsaleController
+## CrowdsaleController
 The `CrowdsaleController.sol` contract is the main contract of this project. It runs the presale and the actual sale.
 Whith any legit contribution, the calculated amount of tokens are immediately assignes the sender (token `issue` function is called). The same amount (1:1 ratio) is assigned to the beneficiary account. 
 Ether collected during the sale is stored at the ether balance of the CrowdsaleController contract and should be sent to the foundation multisig wallet when sale is over.
 
 TODO???: add finalize sale function that will transfer Token ownership to the Bancor Changer once it's up.
 
-### SmartToken
+### Methods
+**computeReturn**
+```cs
+function computeReturn(uint256 _contribution)
+```
+Computes the number of tokens that should be issued for a given contribution.
+<br>
+<br>
+<br>
+**addToWhitelist**
+```cs
+function addToWhitelist(address _address)
+```
+Adds a whitelist address for which there is no max contribution and is allowed to participate in the presale. Can be called by manager only.
+<br>
+<br>
+<br>
+**removeFromWhitelist**
+```cs
+function removeFromWhitelist(address _address)
+```
+Disables an existing whitelist address from participating presale. Can be called by manager only.
+<br>
+<br>
+<br>
+**contributeETH**
+```cs
+function contributeETH()
+```
+This is the public payable method for contributing ether during the public sale. It is used as a payable fallback function when sending money to the contract.
+<br>
+<br>
+<br>
+**contributePreSale**
+```cs
+function contributePreSale()
+```
+This is the public payable method for contributing ether during the presale. (not used as fallback)
+<br>
+<br>
+<br>
+**contributeFiat**
+```cs
+function contributeFiat(address _contributor, uint256 _amount)
+```
+This is the public payable method for allocating tokens for Fiat contributions. It can be executed by manager only during both the sale and the presale.
+<br>
+<br>
+<br>
+### Events
+
+**Contribution**
+```cs
+event Contribution(address indexed _contributor, uint256 _amount, uint256 _return)
+```
+Triggered when a contribution is processed.
+<br>
+<br>
+<br>
+
+
+## SmartToken
 
 First and foremost, a Smart Token is also an ERC-20 compliant token.
 As such, it implements both the standard token methods and the standard token events.
